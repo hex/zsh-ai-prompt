@@ -62,15 +62,17 @@ bindkey -M ai-prompt '^[^['  _ai_prompt_cancel    # Double-Escape (instant cance
 bindkey -M ai-prompt '^C'    _ai_prompt_cancel    # Ctrl-C
 
 # -- POSTDISPLAY persistence --
-# Re-applies dim highlight on every redraw. Other plugins (fast-syntax-highlighting)
-# rebuild region_highlight on each keystroke, stripping our P-entries. Restores
-# POSTDISPLAY content too if something cleared it.
+# Replaces region_highlight with just our POSTDISPLAY highlight on every redraw.
+# Other plugins (fast-syntax-highlighting) rebuild region_highlight each keystroke,
+# causing flicker. Since AI mode input is natural language (not shell commands),
+# syntax highlighting adds no value — a single clean assignment eliminates conflicts.
 _ai_prompt_pre_redraw() {
     (( _AI_PROMPT_ACTIVE )) || return
     if [[ -z "$POSTDISPLAY" ]] && (( ! _AI_PROMPT_WAITING )); then
         POSTDISPLAY=$'\n'"  ⟡ AI mode — Enter to send, Esc to cancel"
     fi
-    [[ -n "$POSTDISPLAY" ]] && _ai_prompt_highlight_postdisplay
+    [[ -n "$POSTDISPLAY" ]] && \
+        region_highlight=("P0 $(( ${#BUFFER} + ${#POSTDISPLAY} )) ${_AI_PROMPT_STYLE}")
 }
 autoload -Uz add-zle-hook-widget
 add-zle-hook-widget zle-line-pre-redraw _ai_prompt_pre_redraw
@@ -194,7 +196,7 @@ _ai_prompt_cleanup() {
     _AI_PROMPT_ACTIVE=0
     _AI_PROMPT_WAITING=0
     POSTDISPLAY=''
-    region_highlight=("${(@)region_highlight:#P[0-9]*}")
+    region_highlight=()
 
     # Restore TMOUT and TRAPALRM.
     TMOUT="${_AI_PROMPT_SAVED_TMOUT}"
