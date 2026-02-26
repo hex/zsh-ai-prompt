@@ -51,17 +51,6 @@ bindkey -M ai-prompt '^['    _ai_prompt_cancel    # Escape (standalone, after KE
 bindkey -M ai-prompt '^[^['  _ai_prompt_cancel    # Double-Escape (instant cancel)
 bindkey -M ai-prompt '^C'    _ai_prompt_cancel    # Ctrl-C
 
-# -- PREDISPLAY persistence --
-# Restores the indicator if something clears PREDISPLAY unexpectedly.
-_ai_prompt_pre_redraw() {
-    (( _AI_PROMPT_ACTIVE )) || return
-    if [[ -z "$PREDISPLAY" ]] && (( ! _AI_PROMPT_WAITING )); then
-        PREDISPLAY="  ⟡ AI mode — Enter to send, Esc to cancel"$'\n'
-    fi
-}
-autoload -Uz add-zle-hook-widget
-add-zle-hook-widget zle-line-pre-redraw _ai_prompt_pre_redraw
-
 # -- Spinner via TRAPALRM --
 _ai_prompt_trapalrm() {
     (( _AI_PROMPT_WAITING )) || return
