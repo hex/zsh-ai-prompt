@@ -29,12 +29,17 @@ typeset -ga _AI_PROMPT_SPINNER_FRAMES=( '⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦
 # Style applied to POSTDISPLAY text via region_highlight.
 typeset -g _AI_PROMPT_STYLE='fg=242'
 
-# Sets POSTDISPLAY and highlights it as dim. Strips any previous highlight entries
-# from this plugin before adding the new one.
+# Applies dim highlight to all POSTDISPLAY content. Removes stale P-entries first
+# to prevent accumulation.
+_ai_prompt_highlight_postdisplay() {
+    region_highlight=("${(@)region_highlight:#P[0-9]*}")
+    region_highlight+=("P0 ${#POSTDISPLAY} ${_AI_PROMPT_STYLE}")
+}
+
+# Sets POSTDISPLAY text and applies dim highlight.
 _ai_prompt_set_postdisplay() {
     POSTDISPLAY=$'\n'"$1"
-    region_highlight=("${(@)region_highlight:#P*ai-prompt*}")
-    region_highlight+=("P0 ${#POSTDISPLAY} ${_AI_PROMPT_STYLE} memo=ai-prompt")
+    _ai_prompt_highlight_postdisplay
 }
 
 # -- Backend dispatch --
@@ -56,12 +61,15 @@ bindkey -M ai-prompt '^[^['  _ai_prompt_cancel    # Double-Escape (instant cance
 bindkey -M ai-prompt '^C'    _ai_prompt_cancel    # Ctrl-C
 
 # -- POSTDISPLAY persistence --
-# Safety net: if anything clears POSTDISPLAY while AI mode is active, restore it.
-# Only writes when the value has actually been cleared to avoid flicker.
+# Re-applies dim highlight on every redraw. Other plugins (fast-syntax-highlighting)
+# rebuild region_highlight on each keystroke, stripping our P-entries. Restores
+# POSTDISPLAY content too if something cleared it.
 _ai_prompt_pre_redraw() {
-    if (( _AI_PROMPT_ACTIVE && ! _AI_PROMPT_WAITING )) && [[ -z "$POSTDISPLAY" ]]; then
-        _ai_prompt_set_postdisplay "  ⟡ AI mode — Enter to send, Esc to cancel"
+    (( _AI_PROMPT_ACTIVE )) || return
+    if [[ -z "$POSTDISPLAY" ]] && (( ! _AI_PROMPT_WAITING )); then
+        POSTDISPLAY=$'\n'"  ⟡ AI mode — Enter to send, Esc to cancel"
     fi
+    [[ -n "$POSTDISPLAY" ]] && _ai_prompt_highlight_postdisplay
 }
 autoload -Uz add-zle-hook-widget
 add-zle-hook-widget zle-line-pre-redraw _ai_prompt_pre_redraw
@@ -185,7 +193,7 @@ _ai_prompt_cleanup() {
     _AI_PROMPT_ACTIVE=0
     _AI_PROMPT_WAITING=0
     POSTDISPLAY=''
-    region_highlight=("${(@)region_highlight:#P*ai-prompt*}")
+    region_highlight=("${(@)region_highlight:#P[0-9]*}")
 
     # Restore TMOUT and TRAPALRM.
     TMOUT="${_AI_PROMPT_SAVED_TMOUT}"
