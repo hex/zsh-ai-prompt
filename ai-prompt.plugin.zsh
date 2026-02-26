@@ -106,6 +106,10 @@ _ai_prompt_activate() {
     # are for shell commands, not natural language queries.
     (( $+functions[_zsh_autosuggest_disable] )) && _zsh_autosuggest_disable
 
+    # Disable p10k prompt updates — its pre-redraw hook calls zle reset-prompt
+    # which triggers a full redraw mid-hook-chain, causing visible flicker.
+    (( ${+__p9k_enabled} )) && __p9k_enabled=0
+
     # Switch to AI keymap.
     zle -K ai-prompt
     zle reset-prompt
@@ -207,8 +211,9 @@ _ai_prompt_cleanup() {
         unfunction TRAPALRM 2>/dev/null
     fi
 
-    # Re-enable autosuggestions.
+    # Re-enable autosuggestions and p10k prompt updates.
     (( $+functions[_zsh_autosuggest_enable] )) && _zsh_autosuggest_enable
+    (( ${+__p9k_enabled} )) && __p9k_enabled=1
 
     # Switch back to main keymap.
     zle -K main
