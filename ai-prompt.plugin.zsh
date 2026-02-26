@@ -5,7 +5,7 @@
 AI_PROMPT_BACKEND="${AI_PROMPT_BACKEND:-claude}"
 AI_PROMPT_KEYBINDING="${AI_PROMPT_KEYBINDING:-^[a}"  # Alt-A
 AI_PROMPT_SYSTEM_PROMPT="${AI_PROMPT_SYSTEM_PROMPT:-Respond with only the command(s), no explanation.}"
-AI_PROMPT_INDICATOR_STYLE="${AI_PROMPT_INDICATOR_STYLE:-fg=cyan}"
+AI_PROMPT_SPINNER_STYLE="${AI_PROMPT_SPINNER_STYLE:-fg=magenta}"
 
 # Load user config if present.
 [[ -f ~/.config/ai-prompt/config.zsh ]] && source ~/.config/ai-prompt/config.zsh
@@ -27,12 +27,11 @@ typeset -g _AI_PROMPT_SPINNER_IDX=0
 
 typeset -ga _AI_PROMPT_SPINNER_FRAMES=( '⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏' )
 
-# Sets PREDISPLAY indicator text and applies color via region_highlight.
-# Uses PREDISPLAY (text before the buffer) to avoid conflicts with
-# zsh-autosuggestions. Trailing newline pushes buffer to the next line.
+# Sets PREDISPLAY indicator text. Uses PREDISPLAY (text before the buffer)
+# to avoid conflicts with zsh-autosuggestions. Trailing newline pushes
+# buffer to the next line.
 _ai_prompt_set_indicator() {
     PREDISPLAY="$1"$'\n'
-    region_highlight=("${(@)region_highlight:#P*}" "P0 ${#PREDISPLAY} ${AI_PROMPT_INDICATOR_STYLE}")
 }
 
 # -- Backend dispatch --
@@ -61,6 +60,7 @@ _ai_prompt_animate() {
     (( _AI_PROMPT_WAITING )) || return
     _AI_PROMPT_SPINNER_IDX=$(( (_AI_PROMPT_SPINNER_IDX + 1) % ${#_AI_PROMPT_SPINNER_FRAMES} ))
     _ai_prompt_set_indicator "  ${_AI_PROMPT_SPINNER_FRAMES[$_AI_PROMPT_SPINNER_IDX+1]} thinking..."
+    region_highlight=("${(@)region_highlight:#P*}" "P0 ${#PREDISPLAY} ${AI_PROMPT_SPINNER_STYLE}")
     zle -R
 }
 zle -N _ai_prompt_animate
@@ -103,6 +103,7 @@ _ai_prompt_submit() {
     BUFFER=''
     CURSOR=0
     _ai_prompt_set_indicator "  ${_AI_PROMPT_SPINNER_FRAMES[1]} thinking..."
+    region_highlight=("${(@)region_highlight:#P*}" "P0 ${#PREDISPLAY} ${AI_PROMPT_SPINNER_STYLE}")
 
     zle reset-prompt
 
