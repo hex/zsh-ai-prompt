@@ -80,6 +80,10 @@ _ai_prompt_activate() {
     CURSOR=0
     POSTDISPLAY=$'\n'"  ⟡ AI mode — Enter to send, Esc to cancel"
 
+    # Disable autosuggestions — they fight over POSTDISPLAY and the suggestions
+    # are for shell commands, not natural language queries.
+    (( $+functions[_zsh_autosuggest_disable] )) && _zsh_autosuggest_disable
+
     # Switch to AI keymap.
     zle -K ai-prompt
     zle reset-prompt
@@ -179,6 +183,9 @@ _ai_prompt_cleanup() {
     else
         unfunction TRAPALRM 2>/dev/null
     fi
+
+    # Re-enable autosuggestions.
+    (( $+functions[_zsh_autosuggest_enable] )) && _zsh_autosuggest_enable
 
     # Switch back to main keymap.
     zle -K main
