@@ -30,10 +30,11 @@ typeset -ga _AI_PROMPT_SPINNER_FRAMES=( '⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦
 typeset -g _AI_PROMPT_STYLE='fg=242'
 
 # Applies dim highlight to all POSTDISPLAY content. Removes stale P-entries first
-# to prevent accumulation.
+# to prevent accumulation. End offset includes BUFFER length because P-entry
+# offsets appear to use display-relative positions in practice.
 _ai_prompt_highlight_postdisplay() {
     region_highlight=("${(@)region_highlight:#P[0-9]*}")
-    region_highlight+=("P0 ${#POSTDISPLAY} ${_AI_PROMPT_STYLE}")
+    region_highlight+=("P0 $(( ${#BUFFER} + ${#POSTDISPLAY} )) ${_AI_PROMPT_STYLE}")
 }
 
 # Sets POSTDISPLAY text and applies dim highlight.
