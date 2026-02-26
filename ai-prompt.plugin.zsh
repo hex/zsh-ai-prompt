@@ -26,6 +26,11 @@ typeset -g _AI_PROMPT_SPINNER_IDX=0
 
 typeset -ga _AI_PROMPT_SPINNER_FRAMES=( '⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏' )
 
+# Dim styling for POSTDISPLAY indicator text.
+typeset -g _AI_PROMPT_DIM=$'\e[90m'
+typeset -g _AI_PROMPT_RESET=$'\e[0m'
+typeset -g _AI_PROMPT_INDICATOR="${_AI_PROMPT_DIM}  ⟡ AI mode — Enter to send, Esc to cancel${_AI_PROMPT_RESET}"
+
 # -- Backend dispatch --
 _ai_prompt_query() {
     local fn="_ai_prompt_query_${AI_PROMPT_BACKEND}"
@@ -45,11 +50,12 @@ bindkey -M ai-prompt '^[^['  _ai_prompt_cancel    # Double-Escape (instant cance
 bindkey -M ai-prompt '^C'    _ai_prompt_cancel    # Ctrl-C
 
 # -- POSTDISPLAY persistence --
-# zsh-autosuggestions clears POSTDISPLAY on buffer changes. This hook restores
-# it while AI mode is active so the indicator stays visible during typing.
+# Safety net: if anything clears POSTDISPLAY while AI mode is active, restore it.
+# Only writes when the value has actually changed to avoid flicker.
 _ai_prompt_pre_redraw() {
     if (( _AI_PROMPT_ACTIVE && ! _AI_PROMPT_WAITING )); then
-        POSTDISPLAY=$'\n'"  ⟡ AI mode — Enter to send, Esc to cancel"
+        local expected=$'\n'"$_AI_PROMPT_INDICATOR"
+        [[ "$POSTDISPLAY" == "$expected" ]] || POSTDISPLAY="$expected"
     fi
 }
 autoload -Uz add-zle-hook-widget
@@ -59,7 +65,7 @@ add-zle-hook-widget zle-line-pre-redraw _ai_prompt_pre_redraw
 _ai_prompt_trapalrm() {
     (( _AI_PROMPT_WAITING )) || return
     _AI_PROMPT_SPINNER_IDX=$(( (_AI_PROMPT_SPINNER_IDX + 1) % ${#_AI_PROMPT_SPINNER_FRAMES} ))
-    POSTDISPLAY=$'\n'"  ${_AI_PROMPT_SPINNER_FRAMES[$_AI_PROMPT_SPINNER_IDX+1]} thinking..."
+    POSTDISPLAY=$'\n'"${_AI_PROMPT_DIM}  ${_AI_PROMPT_SPINNER_FRAMES[$_AI_PROMPT_SPINNER_IDX+1]} thinking...${_AI_PROMPT_RESET}"
     zle reset-prompt
 }
 
@@ -78,7 +84,7 @@ _ai_prompt_activate() {
     # Clear buffer for query input.
     BUFFER=''
     CURSOR=0
-    POSTDISPLAY=$'\n'"  ⟡ AI mode — Enter to send, Esc to cancel"
+    POSTDISPLAY=$'\n'"$_AI_PROMPT_INDICATOR"
 
     # Disable autosuggestions — they fight over POSTDISPLAY and the suggestions
     # are for shell commands, not natural language queries.
@@ -104,7 +110,7 @@ _ai_prompt_submit() {
     _AI_PROMPT_SPINNER_IDX=0
     BUFFER=''
     CURSOR=0
-    POSTDISPLAY=$'\n'"  ${_AI_PROMPT_SPINNER_FRAMES[1]} thinking..."
+    POSTDISPLAY=$'\n'"${_AI_PROMPT_DIM}  ${_AI_PROMPT_SPINNER_FRAMES[1]} thinking...${_AI_PROMPT_RESET}"
 
     # Save and set TMOUT for spinner ticks.
     _AI_PROMPT_SAVED_TMOUT="${TMOUT:-0}"
