@@ -60,7 +60,7 @@ _ai_prompt_animate() {
     (( _AI_PROMPT_WAITING )) || return
     _AI_PROMPT_SPINNER_IDX=$(( (_AI_PROMPT_SPINNER_IDX + 1) % ${#_AI_PROMPT_SPINNER_FRAMES} ))
     _ai_prompt_set_indicator "  ${_AI_PROMPT_SPINNER_FRAMES[$_AI_PROMPT_SPINNER_IDX+1]} thinking..."
-    region_highlight=("${(@)region_highlight:#P*}" "P0 ${#PREDISPLAY} ${AI_PROMPT_SPINNER_STYLE}")
+    region_highlight=("${(@)region_highlight:#P*}" "P2 3 ${AI_PROMPT_SPINNER_STYLE}")
     zle -R
 }
 zle -N _ai_prompt_animate
@@ -103,7 +103,7 @@ _ai_prompt_submit() {
     BUFFER=''
     CURSOR=0
     _ai_prompt_set_indicator "  ${_AI_PROMPT_SPINNER_FRAMES[1]} thinking..."
-    region_highlight=("${(@)region_highlight:#P*}" "P0 ${#PREDISPLAY} ${AI_PROMPT_SPINNER_STYLE}")
+    region_highlight=("${(@)region_highlight:#P*}" "P2 3 ${AI_PROMPT_SPINNER_STYLE}")
 
     zle reset-prompt
 
