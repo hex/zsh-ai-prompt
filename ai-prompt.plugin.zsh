@@ -26,21 +26,11 @@ typeset -g _AI_PROMPT_SPINNER_IDX=0
 
 typeset -ga _AI_PROMPT_SPINNER_FRAMES=( '⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏' )
 
-# Style applied to POSTDISPLAY text via region_highlight.
-typeset -g _AI_PROMPT_STYLE='fg=242'
-
-# Applies dim highlight to all POSTDISPLAY content. Removes stale P-entries first
-# to prevent accumulation. End offset includes BUFFER length because P-entry
-# offsets appear to use display-relative positions in practice.
-_ai_prompt_highlight_postdisplay() {
-    region_highlight=("${(@)region_highlight:#P[0-9]*}")
-    region_highlight+=("P0 $(( ${#BUFFER} + ${#POSTDISPLAY} )) ${_AI_PROMPT_STYLE}")
-}
-
-# Sets POSTDISPLAY text and applies dim highlight.
-_ai_prompt_set_postdisplay() {
-    POSTDISPLAY=$'\n'"$1"
-    _ai_prompt_highlight_postdisplay
+# Sets PREDISPLAY indicator text. Uses PREDISPLAY (text before the buffer)
+# instead of POSTDISPLAY to avoid conflicts with zsh-autosuggestions.
+# Trailing newline pushes the buffer to the line below the indicator.
+_ai_prompt_set_indicator() {
+    PREDISPLAY="$1"$'\n'
 }
 
 # -- Backend dispatch --
@@ -61,18 +51,13 @@ bindkey -M ai-prompt '^['    _ai_prompt_cancel    # Escape (standalone, after KE
 bindkey -M ai-prompt '^[^['  _ai_prompt_cancel    # Double-Escape (instant cancel)
 bindkey -M ai-prompt '^C'    _ai_prompt_cancel    # Ctrl-C
 
-# -- POSTDISPLAY persistence --
-# Replaces region_highlight with just our POSTDISPLAY highlight on every redraw.
-# Other plugins (fast-syntax-highlighting) rebuild region_highlight each keystroke,
-# causing flicker. Since AI mode input is natural language (not shell commands),
-# syntax highlighting adds no value — a single clean assignment eliminates conflicts.
+# -- PREDISPLAY persistence --
+# Restores the indicator if something clears PREDISPLAY unexpectedly.
 _ai_prompt_pre_redraw() {
     (( _AI_PROMPT_ACTIVE )) || return
-    if [[ -z "$POSTDISPLAY" ]] && (( ! _AI_PROMPT_WAITING )); then
-        POSTDISPLAY=$'\n'"  ⟡ AI mode — Enter to send, Esc to cancel"
+    if [[ -z "$PREDISPLAY" ]] && (( ! _AI_PROMPT_WAITING )); then
+        PREDISPLAY="  ⟡ AI mode — Enter to send, Esc to cancel"$'\n'
     fi
-    [[ -n "$POSTDISPLAY" ]] && \
-        region_highlight=("P0 $(( ${#BUFFER} + ${#POSTDISPLAY} )) ${_AI_PROMPT_STYLE}")
 }
 autoload -Uz add-zle-hook-widget
 add-zle-hook-widget zle-line-pre-redraw _ai_prompt_pre_redraw
@@ -81,7 +66,7 @@ add-zle-hook-widget zle-line-pre-redraw _ai_prompt_pre_redraw
 _ai_prompt_trapalrm() {
     (( _AI_PROMPT_WAITING )) || return
     _AI_PROMPT_SPINNER_IDX=$(( (_AI_PROMPT_SPINNER_IDX + 1) % ${#_AI_PROMPT_SPINNER_FRAMES} ))
-    _ai_prompt_set_postdisplay "  ${_AI_PROMPT_SPINNER_FRAMES[$_AI_PROMPT_SPINNER_IDX+1]} thinking..."
+    _ai_prompt_set_indicator "  ${_AI_PROMPT_SPINNER_FRAMES[$_AI_PROMPT_SPINNER_IDX+1]} thinking..."
     zle reset-prompt
 }
 
@@ -100,15 +85,7 @@ _ai_prompt_activate() {
     # Clear buffer for query input.
     BUFFER=''
     CURSOR=0
-    _ai_prompt_set_postdisplay "  ⟡ AI mode — Enter to send, Esc to cancel"
-
-    # Disable autosuggestions — they fight over POSTDISPLAY and the suggestions
-    # are for shell commands, not natural language queries.
-    (( $+functions[_zsh_autosuggest_disable] )) && _zsh_autosuggest_disable
-
-    # Disable p10k prompt updates — its pre-redraw hook calls zle reset-prompt
-    # which triggers a full redraw mid-hook-chain, causing visible flicker.
-    (( ${+__p9k_enabled} )) && __p9k_enabled=0
+    _ai_prompt_set_indicator "  ⟡ AI mode — Enter to send, Esc to cancel"
 
     # Switch to AI keymap.
     zle -K ai-prompt
@@ -130,7 +107,7 @@ _ai_prompt_submit() {
     _AI_PROMPT_SPINNER_IDX=0
     BUFFER=''
     CURSOR=0
-    _ai_prompt_set_postdisplay "  ${_AI_PROMPT_SPINNER_FRAMES[1]} thinking..."
+    _ai_prompt_set_indicator "  ${_AI_PROMPT_SPINNER_FRAMES[1]} thinking..."
 
     # Save and set TMOUT for spinner ticks.
     _AI_PROMPT_SAVED_TMOUT="${TMOUT:-0}"
@@ -199,8 +176,7 @@ zle -N _ai_prompt_handler
 _ai_prompt_cleanup() {
     _AI_PROMPT_ACTIVE=0
     _AI_PROMPT_WAITING=0
-    POSTDISPLAY=''
-    region_highlight=()
+    PREDISPLAY=''
 
     # Restore TMOUT and TRAPALRM.
     TMOUT="${_AI_PROMPT_SAVED_TMOUT}"
@@ -210,10 +186,6 @@ _ai_prompt_cleanup() {
     else
         unfunction TRAPALRM 2>/dev/null
     fi
-
-    # Re-enable autosuggestions and p10k prompt updates.
-    (( $+functions[_zsh_autosuggest_enable] )) && _zsh_autosuggest_enable
-    (( ${+__p9k_enabled} )) && __p9k_enabled=1
 
     # Switch back to main keymap.
     zle -K main
