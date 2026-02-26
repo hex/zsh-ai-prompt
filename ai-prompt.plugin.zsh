@@ -26,10 +26,16 @@ typeset -g _AI_PROMPT_SPINNER_IDX=0
 
 typeset -ga _AI_PROMPT_SPINNER_FRAMES=( '⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏' )
 
-# Dim styling for POSTDISPLAY indicator text.
-typeset -g _AI_PROMPT_DIM=$'\e[90m'
-typeset -g _AI_PROMPT_RESET=$'\e[0m'
-typeset -g _AI_PROMPT_INDICATOR="${_AI_PROMPT_DIM}  ⟡ AI mode — Enter to send, Esc to cancel${_AI_PROMPT_RESET}"
+# Style applied to POSTDISPLAY text via region_highlight.
+typeset -g _AI_PROMPT_STYLE='fg=242'
+
+# Sets POSTDISPLAY and highlights it as dim. Strips any previous highlight entries
+# from this plugin before adding the new one.
+_ai_prompt_set_postdisplay() {
+    POSTDISPLAY=$'\n'"$1"
+    region_highlight=("${(@)region_highlight:#P*ai-prompt*}")
+    region_highlight+=("P0 ${#POSTDISPLAY} ${_AI_PROMPT_STYLE} memo=ai-prompt")
+}
 
 # -- Backend dispatch --
 _ai_prompt_query() {
@@ -51,11 +57,10 @@ bindkey -M ai-prompt '^C'    _ai_prompt_cancel    # Ctrl-C
 
 # -- POSTDISPLAY persistence --
 # Safety net: if anything clears POSTDISPLAY while AI mode is active, restore it.
-# Only writes when the value has actually changed to avoid flicker.
+# Only writes when the value has actually been cleared to avoid flicker.
 _ai_prompt_pre_redraw() {
-    if (( _AI_PROMPT_ACTIVE && ! _AI_PROMPT_WAITING )); then
-        local expected=$'\n'"$_AI_PROMPT_INDICATOR"
-        [[ "$POSTDISPLAY" == "$expected" ]] || POSTDISPLAY="$expected"
+    if (( _AI_PROMPT_ACTIVE && ! _AI_PROMPT_WAITING )) && [[ -z "$POSTDISPLAY" ]]; then
+        _ai_prompt_set_postdisplay "  ⟡ AI mode — Enter to send, Esc to cancel"
     fi
 }
 autoload -Uz add-zle-hook-widget
@@ -65,7 +70,7 @@ add-zle-hook-widget zle-line-pre-redraw _ai_prompt_pre_redraw
 _ai_prompt_trapalrm() {
     (( _AI_PROMPT_WAITING )) || return
     _AI_PROMPT_SPINNER_IDX=$(( (_AI_PROMPT_SPINNER_IDX + 1) % ${#_AI_PROMPT_SPINNER_FRAMES} ))
-    POSTDISPLAY=$'\n'"${_AI_PROMPT_DIM}  ${_AI_PROMPT_SPINNER_FRAMES[$_AI_PROMPT_SPINNER_IDX+1]} thinking...${_AI_PROMPT_RESET}"
+    _ai_prompt_set_postdisplay "  ${_AI_PROMPT_SPINNER_FRAMES[$_AI_PROMPT_SPINNER_IDX+1]} thinking..."
     zle reset-prompt
 }
 
@@ -84,7 +89,7 @@ _ai_prompt_activate() {
     # Clear buffer for query input.
     BUFFER=''
     CURSOR=0
-    POSTDISPLAY=$'\n'"$_AI_PROMPT_INDICATOR"
+    _ai_prompt_set_postdisplay "  ⟡ AI mode — Enter to send, Esc to cancel"
 
     # Disable autosuggestions — they fight over POSTDISPLAY and the suggestions
     # are for shell commands, not natural language queries.
@@ -110,7 +115,7 @@ _ai_prompt_submit() {
     _AI_PROMPT_SPINNER_IDX=0
     BUFFER=''
     CURSOR=0
-    POSTDISPLAY=$'\n'"${_AI_PROMPT_DIM}  ${_AI_PROMPT_SPINNER_FRAMES[1]} thinking...${_AI_PROMPT_RESET}"
+    _ai_prompt_set_postdisplay "  ${_AI_PROMPT_SPINNER_FRAMES[1]} thinking..."
 
     # Save and set TMOUT for spinner ticks.
     _AI_PROMPT_SAVED_TMOUT="${TMOUT:-0}"
@@ -180,6 +185,7 @@ _ai_prompt_cleanup() {
     _AI_PROMPT_ACTIVE=0
     _AI_PROMPT_WAITING=0
     POSTDISPLAY=''
+    region_highlight=("${(@)region_highlight:#P*ai-prompt*}")
 
     # Restore TMOUT and TRAPALRM.
     TMOUT="${_AI_PROMPT_SAVED_TMOUT}"
