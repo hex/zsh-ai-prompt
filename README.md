@@ -6,24 +6,43 @@ Zsh plugin that provides an inline AI query mode via ZLE widgets. Press a keybin
 
 ### Oh My Zsh
 
-Clone into your custom plugins directory:
-
 ```bash
 git clone https://github.com/hex/zsh-ai-prompt.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-ai-prompt
 ```
 
-Add to your `.zshrc`:
+Add `zsh-ai-prompt` to your plugins in `~/.zshrc`:
 
 ```bash
 plugins=(... zsh-ai-prompt)
 ```
 
-### Manual
-
-Source the plugin from your `.zshrc`:
+### Zinit
 
 ```bash
-source /path/to/zsh-ai-prompt/zsh-ai-prompt.plugin.zsh
+zinit light hex/zsh-ai-prompt
+```
+
+### Antidote
+
+Add to `~/.zsh_plugins.txt`:
+
+```
+hex/zsh-ai-prompt
+```
+
+### Antigen
+
+```bash
+antigen bundle hex/zsh-ai-prompt
+```
+
+### Manual
+
+Clone the repo and source the plugin in your `~/.zshrc`:
+
+```bash
+git clone https://github.com/hex/zsh-ai-prompt.git ~/.zsh/zsh-ai-prompt
+source ~/.zsh/zsh-ai-prompt/zsh-ai-prompt.plugin.zsh
 ```
 
 ## Usage
