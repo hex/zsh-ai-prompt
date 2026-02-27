@@ -30,7 +30,24 @@ typeset -ga _ZSH_AI_PROMPT_SPINNER_FRAMES=( '⠋' '⠙' '⠹' '⠸' '⠼' '⠴' 
 # buffer to the next line.
 _ai_prompt_set_indicator() {
     PREDISPLAY="$1"$'\n'
+    region_highlight=("${(@)region_highlight:#P*}"
+        "P2 3 ${ZSH_AI_PROMPT_SYMBOL_STYLE}"
+        "P3 ${#PREDISPLAY} ${ZSH_AI_PROMPT_TEXT_STYLE}")
 }
+
+# -- Preserve PREDISPLAY highlights across syntax highlighting --
+# Syntax highlighting plugins (fast-syntax-highlighting, zsh-syntax-highlighting)
+# rebuild region_highlight from scratch on every keystroke, which strips our
+# P-prefixed PREDISPLAY entries. We wrap the highlight function to save and
+# restore P entries around its execution.
+if (( $+functions[_zsh_highlight] )); then
+    functions[_ai_prompt_orig_zsh_highlight]="${functions[_zsh_highlight]}"
+    _zsh_highlight() {
+        local -a _ai_p_save=("${(@M)region_highlight:#P*}")
+        _ai_prompt_orig_zsh_highlight
+        (( ${#_ai_p_save} )) && region_highlight+=("${_ai_p_save[@]}")
+    }
+fi
 
 # -- Backend dispatch --
 _ai_prompt_query() {
@@ -76,9 +93,6 @@ _ai_prompt_animate() {
     (( _ZSH_AI_PROMPT_WAITING )) || return
     _ZSH_AI_PROMPT_SPINNER_IDX=$(( (_ZSH_AI_PROMPT_SPINNER_IDX + 1) % ${#_ZSH_AI_PROMPT_SPINNER_FRAMES} ))
     _ai_prompt_set_indicator "  ${_ZSH_AI_PROMPT_SPINNER_FRAMES[$_ZSH_AI_PROMPT_SPINNER_IDX+1]} thinking..."
-    region_highlight=("${(@)region_highlight:#P*}"
-        "P2 3 ${ZSH_AI_PROMPT_SYMBOL_STYLE}"
-        "P3 ${#PREDISPLAY} ${ZSH_AI_PROMPT_TEXT_STYLE}")
     zle -R
 }
 zle -N _ai_prompt_animate
@@ -99,9 +113,6 @@ _ai_prompt_activate() {
     BUFFER=''
     CURSOR=0
     _ai_prompt_set_indicator "  ⟡ AI mode ($(_ai_prompt_effective_model)) — Enter to send, Esc to cancel"
-    region_highlight=("${(@)region_highlight:#P*}"
-        "P2 3 ${ZSH_AI_PROMPT_SYMBOL_STYLE}"
-        "P3 ${#PREDISPLAY} ${ZSH_AI_PROMPT_TEXT_STYLE}")
 
     # Switch to AI keymap.
     zle -K ai-prompt
@@ -130,9 +141,6 @@ _ai_prompt_submit() {
     BUFFER=''
     CURSOR=0
     _ai_prompt_set_indicator "  ${_ZSH_AI_PROMPT_SPINNER_FRAMES[1]} thinking..."
-    region_highlight=("${(@)region_highlight:#P*}"
-        "P2 3 ${ZSH_AI_PROMPT_SYMBOL_STYLE}"
-        "P3 ${#PREDISPLAY} ${ZSH_AI_PROMPT_TEXT_STYLE}")
 
     zle reset-prompt
 
@@ -213,11 +221,10 @@ _ai_prompt_cleanup() {
         _ZSH_AI_PROMPT_ANIM_FD=''
     fi
 
-    # Switch back to main keymap AFTER reset-prompt to ensure the
-    # keymap change persists in async zle -F handler contexts.
     zle reset-prompt
     zle -K main
 }
 
 # -- Bind the activation key --
 bindkey "$ZSH_AI_PROMPT_KEYBINDING" _ai_prompt_activate
+bindkey -M ai-prompt "$ZSH_AI_PROMPT_KEYBINDING" _ai_prompt_activate
