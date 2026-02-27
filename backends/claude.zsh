@@ -5,7 +5,7 @@ _ai_prompt_query_claude_api() {
     local query="$1" system="$2"
     local api_key="${AI_PROMPT_API_KEY:-$ANTHROPIC_API_KEY}"
     local api_url="${AI_PROMPT_API_URL:-https://api.anthropic.com/v1/messages}"
-    local model="${AI_PROMPT_MODEL:-claude-haiku-4-5-20251001}"
+    local model="${AI_PROMPT_MODEL:-claude-haiku-4-5}"
 
     if [[ -z "$api_key" ]]; then
         echo "ai-prompt: claude CLI not found and ANTHROPIC_API_KEY not set" >&2

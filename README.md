@@ -66,7 +66,7 @@ AI_PROMPT_MODEL="sonnet"  # override CLI model (default: haiku)
 
 # Without CLI: auto-detects $ANTHROPIC_API_KEY, or set explicitly:
 # AI_PROMPT_API_KEY="sk-ant-..."
-# AI_PROMPT_MODEL="claude-haiku-4-5-20251001"  # API model IDs (default)
+# AI_PROMPT_MODEL="claude-haiku-4-5"  # default (alias, always latest)
 ```
 
 ### OpenAI
@@ -77,7 +77,7 @@ Auto-detects `OPENAI_API_KEY` from your environment. Works with any OpenAI-compa
 AI_PROMPT_BACKEND="openai"
 # Uses $OPENAI_API_KEY automatically, or set explicitly:
 # AI_PROMPT_API_KEY="sk-..."
-# AI_PROMPT_MODEL="gpt-4o-mini"      # default
+# AI_PROMPT_MODEL="gpt-4.1-nano"     # default
 # AI_PROMPT_API_URL="https://..."    # for compatible APIs
 ```
 
@@ -89,7 +89,7 @@ Auto-detects `GEMINI_API_KEY` from your environment. Uses Gemini's OpenAI-compat
 AI_PROMPT_BACKEND="gemini"
 # Uses $GEMINI_API_KEY automatically, or set explicitly:
 # AI_PROMPT_API_KEY="..."
-# AI_PROMPT_MODEL="gemini-2.0-flash"  # default, or uses $GEMINI_MODEL
+# AI_PROMPT_MODEL="gemini-2.5-flash-lite"  # default, or uses $GEMINI_MODEL
 ```
 
 ### Ollama
