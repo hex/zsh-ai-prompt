@@ -110,6 +110,12 @@ _ai_prompt_activate() {
 zle -N _ai_prompt_activate
 
 _ai_prompt_submit() {
+    # If AI mode is not active, fall through to normal accept-line.
+    if (( ! _ZSH_AI_PROMPT_ACTIVE || _ZSH_AI_PROMPT_WAITING )); then
+        zle accept-line
+        return
+    fi
+
     local query="$BUFFER"
 
     # Nothing to submit.
@@ -146,6 +152,9 @@ _ai_prompt_submit() {
 zle -N _ai_prompt_submit
 
 _ai_prompt_cancel() {
+    # If AI mode is not active, ignore.
+    (( _ZSH_AI_PROMPT_ACTIVE || _ZSH_AI_PROMPT_WAITING )) || return
+
     # Restore original buffer.
     BUFFER="$_ZSH_AI_PROMPT_SAVED_BUFFER"
     CURSOR=$_ZSH_AI_PROMPT_SAVED_CURSOR
@@ -204,9 +213,10 @@ _ai_prompt_cleanup() {
         _ZSH_AI_PROMPT_ANIM_FD=''
     fi
 
-    # Switch back to main keymap.
-    zle -K main
+    # Switch back to main keymap AFTER reset-prompt to ensure the
+    # keymap change persists in async zle -F handler contexts.
     zle reset-prompt
+    zle -K main
 }
 
 # -- Bind the activation key --
