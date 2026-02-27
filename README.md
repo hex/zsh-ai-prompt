@@ -9,7 +9,7 @@ Zsh plugin that provides an inline AI query mode via ZLE widgets. Press a keybin
 Clone into your custom plugins directory:
 
 ```bash
-git clone <repo-url> ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/ai-prompt
+git clone https://github.com/hex/zsh-ai-prompt.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/ai-prompt
 ```
 
 Add to your `.zshrc`:
