@@ -52,8 +52,10 @@ fi
 # -- Backend dispatch --
 _ai_prompt_query() {
     local fn="_ai_prompt_query_${ZSH_AI_PROMPT_BACKEND}"
+    local system="$ZSH_AI_PROMPT_SYSTEM_PROMPT"
+    [[ -n "$ZSH_AI_PROMPT_CONTEXT" ]] && system="${system} ${ZSH_AI_PROMPT_CONTEXT}"
     if (( $+functions[$fn] )); then
-        "$fn" "$1" "$ZSH_AI_PROMPT_SYSTEM_PROMPT"
+        "$fn" "$1" "$system"
     else
         echo "ai-prompt: unknown backend '$ZSH_AI_PROMPT_BACKEND'" >&2
     fi
