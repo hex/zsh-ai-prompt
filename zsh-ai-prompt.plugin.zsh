@@ -42,6 +42,24 @@ _ai_prompt_query() {
     fi
 }
 
+# -- Model resolution --
+# Returns the effective model name for display in the indicator.
+_ai_prompt_effective_model() {
+    if [[ -n "$ZSH_AI_PROMPT_MODEL" ]]; then
+        echo "$ZSH_AI_PROMPT_MODEL"
+        return
+    fi
+    case "$ZSH_AI_PROMPT_BACKEND" in
+        claude)
+            if (( $+commands[claude] )); then echo "haiku"
+            else echo "claude-haiku-4-5"; fi ;;
+        openai)  echo "gpt-4.1-nano" ;;
+        gemini)  echo "${GEMINI_MODEL:-gemini-2.5-flash-lite}" ;;
+        ollama)  echo "llama3" ;;
+        *)       echo "$ZSH_AI_PROMPT_BACKEND" ;;
+    esac
+}
+
 # -- Custom keymap --
 # Inherits all bindings from main so normal editing works in AI mode.
 bindkey -N ai-prompt main
@@ -80,7 +98,7 @@ _ai_prompt_activate() {
     # Clear buffer for query input.
     BUFFER=''
     CURSOR=0
-    _ai_prompt_set_indicator "  ⟡ AI mode — Enter to send, Esc to cancel"
+    _ai_prompt_set_indicator "  ⟡ AI mode ($(_ai_prompt_effective_model)) — Enter to send, Esc to cancel"
     region_highlight=("${(@)region_highlight:#P*}"
         "P2 3 ${ZSH_AI_PROMPT_SYMBOL_STYLE}"
         "P3 ${#PREDISPLAY} ${ZSH_AI_PROMPT_TEXT_STYLE}")
