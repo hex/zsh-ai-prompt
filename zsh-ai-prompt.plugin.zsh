@@ -2,28 +2,28 @@
 # ABOUTME: Press a keybinding to enter AI mode, type a query, get a command back.
 
 # -- Configuration defaults --
-AI_PROMPT_BACKEND="${AI_PROMPT_BACKEND:-claude}"
-AI_PROMPT_KEYBINDING="${AI_PROMPT_KEYBINDING:-^[a}"  # Alt-A
-AI_PROMPT_SYSTEM_PROMPT="${AI_PROMPT_SYSTEM_PROMPT:-Respond with only the command(s), no explanation.}"
-AI_PROMPT_SYMBOL_STYLE="${AI_PROMPT_SYMBOL_STYLE:-fg=magenta}"
-AI_PROMPT_TEXT_STYLE="${AI_PROMPT_TEXT_STYLE:-fg=242}"
+ZSH_AI_PROMPT_BACKEND="${ZSH_AI_PROMPT_BACKEND:-claude}"
+ZSH_AI_PROMPT_KEYBINDING="${ZSH_AI_PROMPT_KEYBINDING:-^[a}"  # Alt-A
+ZSH_AI_PROMPT_SYSTEM_PROMPT="${ZSH_AI_PROMPT_SYSTEM_PROMPT:-Respond with only the command(s), no explanation.}"
+ZSH_AI_PROMPT_SYMBOL_STYLE="${ZSH_AI_PROMPT_SYMBOL_STYLE:-fg=magenta}"
+ZSH_AI_PROMPT_TEXT_STYLE="${ZSH_AI_PROMPT_TEXT_STYLE:-fg=242}"
 
 # Load the active backend.
 _ai_prompt_plugin_dir="${0:A:h}"
-if [[ -f "$_ai_prompt_plugin_dir/backends/${AI_PROMPT_BACKEND}.zsh" ]]; then
-    source "$_ai_prompt_plugin_dir/backends/${AI_PROMPT_BACKEND}.zsh"
+if [[ -f "$_ai_prompt_plugin_dir/backends/${ZSH_AI_PROMPT_BACKEND}.zsh" ]]; then
+    source "$_ai_prompt_plugin_dir/backends/${ZSH_AI_PROMPT_BACKEND}.zsh"
 fi
 
 # -- State --
-typeset -g _AI_PROMPT_ACTIVE=0
-typeset -g _AI_PROMPT_WAITING=0
-typeset -g _AI_PROMPT_FD=''
-typeset -g _AI_PROMPT_SAVED_BUFFER=''
-typeset -g _AI_PROMPT_SAVED_CURSOR=0
-typeset -g _AI_PROMPT_ANIM_FD=''
-typeset -g _AI_PROMPT_SPINNER_IDX=0
+typeset -g _ZSH_AI_PROMPT_ACTIVE=0
+typeset -g _ZSH_AI_PROMPT_WAITING=0
+typeset -g _ZSH_AI_PROMPT_FD=''
+typeset -g _ZSH_AI_PROMPT_SAVED_BUFFER=''
+typeset -g _ZSH_AI_PROMPT_SAVED_CURSOR=0
+typeset -g _ZSH_AI_PROMPT_ANIM_FD=''
+typeset -g _ZSH_AI_PROMPT_SPINNER_IDX=0
 
-typeset -ga _AI_PROMPT_SPINNER_FRAMES=( '⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏' )
+typeset -ga _ZSH_AI_PROMPT_SPINNER_FRAMES=( '⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏' )
 
 # Sets PREDISPLAY indicator text. Uses PREDISPLAY (text before the buffer)
 # to avoid conflicts with zsh-autosuggestions. Trailing newline pushes
@@ -34,11 +34,11 @@ _ai_prompt_set_indicator() {
 
 # -- Backend dispatch --
 _ai_prompt_query() {
-    local fn="_ai_prompt_query_${AI_PROMPT_BACKEND}"
+    local fn="_ai_prompt_query_${ZSH_AI_PROMPT_BACKEND}"
     if (( $+functions[$fn] )); then
-        "$fn" "$1" "$AI_PROMPT_SYSTEM_PROMPT"
+        "$fn" "$1" "$ZSH_AI_PROMPT_SYSTEM_PROMPT"
     else
-        echo "ai-prompt: unknown backend '$AI_PROMPT_BACKEND'" >&2
+        echo "ai-prompt: unknown backend '$ZSH_AI_PROMPT_BACKEND'" >&2
     fi
 }
 
@@ -55,12 +55,12 @@ bindkey -M ai-prompt '^C'    _ai_prompt_cancel    # Ctrl-C
 _ai_prompt_animate() {
     local fd="$1"
     read -r -u "$fd" _ 2>/dev/null || return
-    (( _AI_PROMPT_WAITING )) || return
-    _AI_PROMPT_SPINNER_IDX=$(( (_AI_PROMPT_SPINNER_IDX + 1) % ${#_AI_PROMPT_SPINNER_FRAMES} ))
-    _ai_prompt_set_indicator "  ${_AI_PROMPT_SPINNER_FRAMES[$_AI_PROMPT_SPINNER_IDX+1]} thinking..."
+    (( _ZSH_AI_PROMPT_WAITING )) || return
+    _ZSH_AI_PROMPT_SPINNER_IDX=$(( (_ZSH_AI_PROMPT_SPINNER_IDX + 1) % ${#_ZSH_AI_PROMPT_SPINNER_FRAMES} ))
+    _ai_prompt_set_indicator "  ${_ZSH_AI_PROMPT_SPINNER_FRAMES[$_ZSH_AI_PROMPT_SPINNER_IDX+1]} thinking..."
     region_highlight=("${(@)region_highlight:#P*}"
-        "P2 3 ${AI_PROMPT_SYMBOL_STYLE}"
-        "P3 ${#PREDISPLAY} ${AI_PROMPT_TEXT_STYLE}")
+        "P2 3 ${ZSH_AI_PROMPT_SYMBOL_STYLE}"
+        "P3 ${#PREDISPLAY} ${ZSH_AI_PROMPT_TEXT_STYLE}")
     zle -R
 }
 zle -N _ai_prompt_animate
@@ -69,21 +69,21 @@ zle -N _ai_prompt_animate
 
 _ai_prompt_activate() {
     # Ignore if already active or waiting for a response.
-    (( _AI_PROMPT_ACTIVE || _AI_PROMPT_WAITING )) && return
+    (( _ZSH_AI_PROMPT_ACTIVE || _ZSH_AI_PROMPT_WAITING )) && return
 
     # Save current state.
-    _AI_PROMPT_SAVED_BUFFER="$BUFFER"
-    _AI_PROMPT_SAVED_CURSOR=$CURSOR
-    _AI_PROMPT_ACTIVE=1
-    _AI_PROMPT_WAITING=0
+    _ZSH_AI_PROMPT_SAVED_BUFFER="$BUFFER"
+    _ZSH_AI_PROMPT_SAVED_CURSOR=$CURSOR
+    _ZSH_AI_PROMPT_ACTIVE=1
+    _ZSH_AI_PROMPT_WAITING=0
 
     # Clear buffer for query input.
     BUFFER=''
     CURSOR=0
     _ai_prompt_set_indicator "  ⟡ AI mode — Enter to send, Esc to cancel"
     region_highlight=("${(@)region_highlight:#P*}"
-        "P2 3 ${AI_PROMPT_SYMBOL_STYLE}"
-        "P3 ${#PREDISPLAY} ${AI_PROMPT_TEXT_STYLE}")
+        "P2 3 ${ZSH_AI_PROMPT_SYMBOL_STYLE}"
+        "P3 ${#PREDISPLAY} ${ZSH_AI_PROMPT_TEXT_STYLE}")
 
     # Switch to AI keymap.
     zle -K ai-prompt
@@ -101,42 +101,42 @@ _ai_prompt_submit() {
     fi
 
     # Enter waiting state.
-    _AI_PROMPT_WAITING=1
-    _AI_PROMPT_SPINNER_IDX=0
+    _ZSH_AI_PROMPT_WAITING=1
+    _ZSH_AI_PROMPT_SPINNER_IDX=0
     BUFFER=''
     CURSOR=0
-    _ai_prompt_set_indicator "  ${_AI_PROMPT_SPINNER_FRAMES[1]} thinking..."
+    _ai_prompt_set_indicator "  ${_ZSH_AI_PROMPT_SPINNER_FRAMES[1]} thinking..."
     region_highlight=("${(@)region_highlight:#P*}"
-        "P2 3 ${AI_PROMPT_SYMBOL_STYLE}"
-        "P3 ${#PREDISPLAY} ${AI_PROMPT_TEXT_STYLE}")
+        "P2 3 ${ZSH_AI_PROMPT_SYMBOL_STYLE}"
+        "P3 ${#PREDISPLAY} ${ZSH_AI_PROMPT_TEXT_STYLE}")
 
     zle reset-prompt
 
     # Start animation ticker — background process writes a line every 80ms.
     # Closing the read end sends SIGPIPE to kill the background process.
-    exec {_AI_PROMPT_ANIM_FD}< <(
+    exec {_ZSH_AI_PROMPT_ANIM_FD}< <(
         while true; do sleep 0.08; echo; done
     )
-    zle -F -w "$_AI_PROMPT_ANIM_FD" _ai_prompt_animate
+    zle -F -w "$_ZSH_AI_PROMPT_ANIM_FD" _ai_prompt_animate
 
     # Launch async API call.
-    exec {_AI_PROMPT_FD}< <(
+    exec {_ZSH_AI_PROMPT_FD}< <(
         _ai_prompt_query "$query" 2>/dev/null
     )
-    zle -F -w "$_AI_PROMPT_FD" _ai_prompt_handler
+    zle -F -w "$_ZSH_AI_PROMPT_FD" _ai_prompt_handler
 }
 zle -N _ai_prompt_submit
 
 _ai_prompt_cancel() {
     # Restore original buffer.
-    BUFFER="$_AI_PROMPT_SAVED_BUFFER"
-    CURSOR=$_AI_PROMPT_SAVED_CURSOR
+    BUFFER="$_ZSH_AI_PROMPT_SAVED_BUFFER"
+    CURSOR=$_ZSH_AI_PROMPT_SAVED_CURSOR
 
     # Kill pending async call if any.
-    if [[ -n "$_AI_PROMPT_FD" ]]; then
-        zle -F "$_AI_PROMPT_FD" 2>/dev/null
-        exec {_AI_PROMPT_FD}<&- 2>/dev/null
-        _AI_PROMPT_FD=''
+    if [[ -n "$_ZSH_AI_PROMPT_FD" ]]; then
+        zle -F "$_ZSH_AI_PROMPT_FD" 2>/dev/null
+        exec {_ZSH_AI_PROMPT_FD}<&- 2>/dev/null
+        _ZSH_AI_PROMPT_FD=''
     fi
 
     _ai_prompt_cleanup
@@ -156,15 +156,15 @@ _ai_prompt_handler() {
 
     # Close fd.
     exec {fd}<&-
-    _AI_PROMPT_FD=''
+    _ZSH_AI_PROMPT_FD=''
 
     if [[ -n "$result" ]]; then
         BUFFER="$result"
         CURSOR=${#BUFFER}
     else
         # On error or empty response, restore original buffer.
-        BUFFER="$_AI_PROMPT_SAVED_BUFFER"
-        CURSOR=$_AI_PROMPT_SAVED_CURSOR
+        BUFFER="$_ZSH_AI_PROMPT_SAVED_BUFFER"
+        CURSOR=$_ZSH_AI_PROMPT_SAVED_CURSOR
     fi
 
     _ai_prompt_cleanup
@@ -174,16 +174,16 @@ zle -N _ai_prompt_handler
 
 # -- Cleanup helper --
 _ai_prompt_cleanup() {
-    _AI_PROMPT_ACTIVE=0
-    _AI_PROMPT_WAITING=0
+    _ZSH_AI_PROMPT_ACTIVE=0
+    _ZSH_AI_PROMPT_WAITING=0
     PREDISPLAY=''
     region_highlight=("${(@)region_highlight:#P*}")
 
     # Stop animation ticker.
-    if [[ -n "$_AI_PROMPT_ANIM_FD" ]]; then
-        zle -F "$_AI_PROMPT_ANIM_FD" 2>/dev/null
-        exec {_AI_PROMPT_ANIM_FD}<&- 2>/dev/null
-        _AI_PROMPT_ANIM_FD=''
+    if [[ -n "$_ZSH_AI_PROMPT_ANIM_FD" ]]; then
+        zle -F "$_ZSH_AI_PROMPT_ANIM_FD" 2>/dev/null
+        exec {_ZSH_AI_PROMPT_ANIM_FD}<&- 2>/dev/null
+        _ZSH_AI_PROMPT_ANIM_FD=''
     fi
 
     # Switch back to main keymap.
@@ -192,4 +192,4 @@ _ai_prompt_cleanup() {
 }
 
 # -- Bind the activation key --
-bindkey "$AI_PROMPT_KEYBINDING" _ai_prompt_activate
+bindkey "$ZSH_AI_PROMPT_KEYBINDING" _ai_prompt_activate

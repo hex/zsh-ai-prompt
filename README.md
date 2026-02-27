@@ -55,23 +55,23 @@ source ~/.zsh/zsh-ai-prompt/zsh-ai-prompt.plugin.zsh
 
 ## Configuration
 
-Works out of the box with the `claude` CLI installed — no configuration needed. For other backends, set `AI_PROMPT_BACKEND` and have the provider's API key in your environment.
+Works out of the box with the `claude` CLI installed — no configuration needed. For other backends, set `ZSH_AI_PROMPT_BACKEND` and have the provider's API key in your environment.
 
 All settings are optional and can be set in your `.zshrc` before the plugin loads:
 
 ```bash
 # Backend: claude (default), openai, gemini, ollama
-AI_PROMPT_BACKEND="gemini"
+ZSH_AI_PROMPT_BACKEND="gemini"
 
 # Keybinding (default: Alt-A)
-AI_PROMPT_KEYBINDING="^[a"
+ZSH_AI_PROMPT_KEYBINDING="^[a"
 
 # System prompt sent with every query
-AI_PROMPT_SYSTEM_PROMPT="Respond with only the command(s), no explanation."
+ZSH_AI_PROMPT_SYSTEM_PROMPT="Respond with only the command(s), no explanation."
 
 # Visual styling (region_highlight format)
-AI_PROMPT_SYMBOL_STYLE="fg=magenta"
-AI_PROMPT_TEXT_STYLE="fg=242"
+ZSH_AI_PROMPT_SYMBOL_STYLE="fg=magenta"
+ZSH_AI_PROMPT_TEXT_STYLE="fg=242"
 ```
 
 ## Backends
@@ -81,13 +81,13 @@ AI_PROMPT_TEXT_STYLE="fg=242"
 Uses the `claude` CLI if available (`claude --print`), otherwise falls back to the Anthropic Messages API with `ANTHROPIC_API_KEY`.
 
 ```bash
-AI_PROMPT_BACKEND="claude"
+ZSH_AI_PROMPT_BACKEND="claude"
 # With CLI installed: works with zero config, uses existing CLI auth
-AI_PROMPT_MODEL="sonnet"  # override CLI model (default: haiku)
+ZSH_AI_PROMPT_MODEL="sonnet"  # override CLI model (default: haiku)
 
 # Without CLI: auto-detects $ANTHROPIC_API_KEY, or set explicitly:
-# AI_PROMPT_API_KEY="sk-ant-..."
-# AI_PROMPT_MODEL="claude-haiku-4-5"  # default (alias, always latest)
+# ZSH_AI_PROMPT_API_KEY="sk-ant-..."
+# ZSH_AI_PROMPT_MODEL="claude-haiku-4-5"  # default (alias, always latest)
 ```
 
 ### OpenAI
@@ -95,11 +95,11 @@ AI_PROMPT_MODEL="sonnet"  # override CLI model (default: haiku)
 Auto-detects `OPENAI_API_KEY` from your environment. Works with any OpenAI-compatible API.
 
 ```bash
-AI_PROMPT_BACKEND="openai"
+ZSH_AI_PROMPT_BACKEND="openai"
 # Uses $OPENAI_API_KEY automatically, or set explicitly:
-# AI_PROMPT_API_KEY="sk-..."
-# AI_PROMPT_MODEL="gpt-4.1-nano"     # default
-# AI_PROMPT_API_URL="https://..."    # for compatible APIs
+# ZSH_AI_PROMPT_API_KEY="sk-..."
+# ZSH_AI_PROMPT_MODEL="gpt-4.1-nano"     # default
+# ZSH_AI_PROMPT_API_URL="https://..."    # for compatible APIs
 ```
 
 ### Gemini
@@ -107,10 +107,10 @@ AI_PROMPT_BACKEND="openai"
 Auto-detects `GEMINI_API_KEY` from your environment. Uses Gemini's OpenAI-compatible endpoint.
 
 ```bash
-AI_PROMPT_BACKEND="gemini"
+ZSH_AI_PROMPT_BACKEND="gemini"
 # Uses $GEMINI_API_KEY automatically, or set explicitly:
-# AI_PROMPT_API_KEY="..."
-# AI_PROMPT_MODEL="gemini-2.5-flash-lite"  # default, or uses $GEMINI_MODEL
+# ZSH_AI_PROMPT_API_KEY="..."
+# ZSH_AI_PROMPT_MODEL="gemini-2.5-flash-lite"  # default, or uses $GEMINI_MODEL
 ```
 
 ### Ollama
@@ -118,9 +118,9 @@ AI_PROMPT_BACKEND="gemini"
 Queries a local Ollama instance. No API key needed.
 
 ```bash
-AI_PROMPT_BACKEND="ollama"
-# AI_PROMPT_MODEL="llama3"                          # default
-# AI_PROMPT_OLLAMA_URL="http://localhost:11434"      # default
+ZSH_AI_PROMPT_BACKEND="ollama"
+# ZSH_AI_PROMPT_MODEL="llama3"                          # default
+# ZSH_AI_PROMPT_OLLAMA_URL="http://localhost:11434"      # default
 ```
 
 ## Dependencies
