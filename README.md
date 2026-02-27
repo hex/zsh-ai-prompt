@@ -63,7 +63,7 @@ All settings are optional and can be set in your `.zshrc` before the plugin load
 
 ```bash
 # Backend: claude (default), openai, gemini, ollama
-ZSH_AI_PROMPT_BACKEND="gemini"
+ZSH_AI_PROMPT_BACKEND="claude"
 
 # Keybinding (default: Alt-A)
 ZSH_AI_PROMPT_KEYBINDING="^[a"
@@ -71,15 +71,17 @@ ZSH_AI_PROMPT_KEYBINDING="^[a"
 # System prompt sent with every query
 ZSH_AI_PROMPT_SYSTEM_PROMPT="Respond with only the command(s), no explanation."
 
-# Extra context appended to the system prompt
-ZSH_AI_PROMPT_CONTEXT="Output terminal commands that work on macOS."
+# Extra context appended to the system prompt (default: unset)
+# ZSH_AI_PROMPT_CONTEXT="Output terminal commands that work on macOS."
 
 # Visual styling (region_highlight format)
 ZSH_AI_PROMPT_SYMBOL_STYLE="fg=magenta"
 ZSH_AI_PROMPT_TEXT_STYLE="fg=242"
 
-# Disable CLI usage (always use API, even if CLI is installed)
-ZSH_AI_PROMPT_USE_CLI=0
+# CLI fallback for backends that support it (default: 1)
+# When no API key is set, backends try their CLI tool (claude, gemini) before failing.
+# Set to 0 to disable CLI fallback and require an API key.
+ZSH_AI_PROMPT_USE_CLI=1
 ```
 
 ## Backends
