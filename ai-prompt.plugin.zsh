@@ -5,7 +5,8 @@
 AI_PROMPT_BACKEND="${AI_PROMPT_BACKEND:-claude}"
 AI_PROMPT_KEYBINDING="${AI_PROMPT_KEYBINDING:-^[a}"  # Alt-A
 AI_PROMPT_SYSTEM_PROMPT="${AI_PROMPT_SYSTEM_PROMPT:-Respond with only the command(s), no explanation.}"
-AI_PROMPT_SPINNER_STYLE="${AI_PROMPT_SPINNER_STYLE:-fg=magenta}"
+AI_PROMPT_SYMBOL_STYLE="${AI_PROMPT_SYMBOL_STYLE:-fg=magenta}"
+AI_PROMPT_TEXT_STYLE="${AI_PROMPT_TEXT_STYLE:-fg=242}"
 
 # Load user config if present.
 [[ -f ~/.config/ai-prompt/config.zsh ]] && source ~/.config/ai-prompt/config.zsh
@@ -60,7 +61,9 @@ _ai_prompt_animate() {
     (( _AI_PROMPT_WAITING )) || return
     _AI_PROMPT_SPINNER_IDX=$(( (_AI_PROMPT_SPINNER_IDX + 1) % ${#_AI_PROMPT_SPINNER_FRAMES} ))
     _ai_prompt_set_indicator "  ${_AI_PROMPT_SPINNER_FRAMES[$_AI_PROMPT_SPINNER_IDX+1]} thinking..."
-    region_highlight=("${(@)region_highlight:#P*}" "P2 3 ${AI_PROMPT_SPINNER_STYLE}")
+    region_highlight=("${(@)region_highlight:#P*}"
+        "P2 3 ${AI_PROMPT_SYMBOL_STYLE}"
+        "P3 ${#PREDISPLAY} ${AI_PROMPT_TEXT_STYLE}")
     zle -R
 }
 zle -N _ai_prompt_animate
@@ -81,6 +84,9 @@ _ai_prompt_activate() {
     BUFFER=''
     CURSOR=0
     _ai_prompt_set_indicator "  ⟡ AI mode — Enter to send, Esc to cancel"
+    region_highlight=("${(@)region_highlight:#P*}"
+        "P2 3 ${AI_PROMPT_SYMBOL_STYLE}"
+        "P3 ${#PREDISPLAY} ${AI_PROMPT_TEXT_STYLE}")
 
     # Switch to AI keymap.
     zle -K ai-prompt
@@ -103,7 +109,9 @@ _ai_prompt_submit() {
     BUFFER=''
     CURSOR=0
     _ai_prompt_set_indicator "  ${_AI_PROMPT_SPINNER_FRAMES[1]} thinking..."
-    region_highlight=("${(@)region_highlight:#P*}" "P2 3 ${AI_PROMPT_SPINNER_STYLE}")
+    region_highlight=("${(@)region_highlight:#P*}"
+        "P2 3 ${AI_PROMPT_SYMBOL_STYLE}"
+        "P3 ${#PREDISPLAY} ${AI_PROMPT_TEXT_STYLE}")
 
     zle reset-prompt
 
