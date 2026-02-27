@@ -2,6 +2,8 @@
 
 Zsh plugin that provides an inline AI query mode via ZLE widgets. Press a keybinding to enter AI mode, type a natural language query, and get a shell command back in your buffer — ready to edit or execute.
 
+![Demo](assets/demo.gif)
+
 ## Installation
 
 ### Oh My Zsh
