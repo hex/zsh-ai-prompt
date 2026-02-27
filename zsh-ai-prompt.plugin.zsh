@@ -43,9 +43,18 @@ _ai_prompt_set_indicator() {
 if (( $+functions[_zsh_highlight] )); then
     functions[_ai_prompt_orig_zsh_highlight]="${functions[_zsh_highlight]}"
     _zsh_highlight() {
+        if (( _ZSH_AI_PROMPT_ACTIVE || _ZSH_AI_PROMPT_WAITING )); then
+            # Regenerate PREDISPLAY styling on every call. ZLE adjusts
+            # region_highlight positions for BUFFER changes, which
+            # corrupts P-entries (they reference PREDISPLAY, not BUFFER).
+            region_highlight=(
+                "P2 3 ${ZSH_AI_PROMPT_SYMBOL_STYLE}"
+                "P3 ${#PREDISPLAY} ${ZSH_AI_PROMPT_TEXT_STYLE}")
+            return
+        fi
         local -a _ai_p_save=("${(@M)region_highlight:#P*}")
         _ai_prompt_orig_zsh_highlight
-        (( ${#_ai_p_save} )) && region_highlight+=("${_ai_p_save[@]}")
+        (( ${#_ai_p_save} )) && region_highlight=("${(@)region_highlight:#P*}" "${_ai_p_save[@]}")
     }
 fi
 
@@ -102,6 +111,12 @@ zle -N _ai_prompt_animate
 # -- Widgets --
 
 _ai_prompt_activate() {
+    # Detect stale state from SIGINT clearing ZLE without calling our cancel widget.
+    if (( _ZSH_AI_PROMPT_ACTIVE || _ZSH_AI_PROMPT_WAITING )) && [[ -z "$PREDISPLAY" ]]; then
+        _ZSH_AI_PROMPT_ACTIVE=0
+        _ZSH_AI_PROMPT_WAITING=0
+    fi
+
     # Ignore if already active or waiting for a response.
     (( _ZSH_AI_PROMPT_ACTIVE || _ZSH_AI_PROMPT_WAITING )) && return
 
