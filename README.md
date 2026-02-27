@@ -57,11 +57,16 @@ AI_PROMPT_TEXT_STYLE="fg=242"
 
 ### Claude (default)
 
-Uses the `claude` CLI (`claude --print`). No API key needed — uses your existing CLI authentication.
+Uses the `claude` CLI if available (`claude --print`), otherwise falls back to the Anthropic Messages API with `ANTHROPIC_API_KEY`.
 
 ```bash
 AI_PROMPT_BACKEND="claude"
-AI_PROMPT_MODEL="sonnet"  # optional
+# With CLI installed: uses existing CLI auth, no API key needed
+AI_PROMPT_MODEL="sonnet"  # CLI model names
+
+# Without CLI: auto-detects $ANTHROPIC_API_KEY, or set explicitly:
+# AI_PROMPT_API_KEY="sk-ant-..."
+# AI_PROMPT_MODEL="claude-sonnet-4-20250514"  # API model IDs
 ```
 
 ### OpenAI
@@ -102,4 +107,4 @@ AI_PROMPT_BACKEND="ollama"
 - **zsh** 4.2.0+ (for PREDISPLAY support)
 - **jq** (for openai, gemini, and ollama backends)
 - **curl** (for openai, gemini, and ollama backends)
-- **claude CLI** (for claude backend only)
+- **claude CLI** or **ANTHROPIC_API_KEY** (for claude backend — one or the other)
