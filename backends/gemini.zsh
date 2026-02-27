@@ -1,5 +1,5 @@
 # ABOUTME: Google Gemini backend for ai-prompt.
-# ABOUTME: Uses `gemini` CLI if available, falls back to the Gemini API.
+# ABOUTME: Uses the Gemini API if available, falls back to the `gemini` CLI.
 
 source "${0:A:h}/_openai_compat.zsh"
 

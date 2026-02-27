@@ -112,16 +112,16 @@ ZSH_AI_PROMPT_BACKEND="openai"
 
 ### Gemini
 
-Uses the `gemini` CLI if available, otherwise falls back to the Gemini API with `GEMINI_API_KEY`.
+Uses the Gemini API if `GEMINI_API_KEY` is set (faster), otherwise falls back to the `gemini` CLI.
 
 ```bash
 ZSH_AI_PROMPT_BACKEND="gemini"
-# With CLI installed: works with zero config, uses existing CLI auth
-# ZSH_AI_PROMPT_MODEL="gemini-2.5-flash"  # override model (default: gemini-2.5-flash-lite)
-
-# Without CLI: auto-detects $GEMINI_API_KEY, or set explicitly:
+# With API key: auto-detects $GEMINI_API_KEY, or set explicitly:
 # ZSH_AI_PROMPT_API_KEY="..."
 # ZSH_AI_PROMPT_MODEL="gemini-2.5-flash-lite"  # default, or uses $GEMINI_MODEL
+
+# Without API key: uses CLI with zero config and existing CLI auth
+# ZSH_AI_PROMPT_MODEL="gemini-2.5-flash"  # override model (default: gemini-2.5-flash-lite)
 ```
 
 ### Ollama
@@ -137,6 +137,6 @@ ZSH_AI_PROMPT_BACKEND="ollama"
 ## Dependencies
 
 - **zsh** 5.0+ (for region_highlight and zle -F widget mode)
-- **jq** (for all API backends — not needed when using the claude CLI)
-- **curl** (for all API backends — not needed when using the claude CLI)
+- **jq** (for API backends — not needed when using the claude or gemini CLI)
+- **curl** (for API backends — not needed when using the claude or gemini CLI)
 - **claude CLI** or **ANTHROPIC_API_KEY** (for claude backend — one or the other)

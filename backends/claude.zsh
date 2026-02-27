@@ -1,5 +1,5 @@
 # ABOUTME: Claude backend for ai-prompt.
-# ABOUTME: Uses `claude` CLI if available, falls back to the Anthropic Messages API.
+# ABOUTME: Uses the Anthropic Messages API if available, falls back to the `claude` CLI.
 
 _ai_prompt_query_claude_api() {
     local query="$1" system="$2"
