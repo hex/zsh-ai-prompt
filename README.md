@@ -62,11 +62,11 @@ Uses the `claude` CLI if available (`claude --print`), otherwise falls back to t
 ```bash
 AI_PROMPT_BACKEND="claude"
 # With CLI installed: uses existing CLI auth, no API key needed
-AI_PROMPT_MODEL="sonnet"  # CLI model names
+AI_PROMPT_MODEL="sonnet"  # override CLI model (default: haiku)
 
 # Without CLI: auto-detects $ANTHROPIC_API_KEY, or set explicitly:
 # AI_PROMPT_API_KEY="sk-ant-..."
-# AI_PROMPT_MODEL="claude-sonnet-4-20250514"  # API model IDs
+# AI_PROMPT_MODEL="claude-haiku-4-5-20251001"  # API model IDs (default)
 ```
 
 ### OpenAI
@@ -77,7 +77,7 @@ Auto-detects `OPENAI_API_KEY` from your environment. Works with any OpenAI-compa
 AI_PROMPT_BACKEND="openai"
 # Uses $OPENAI_API_KEY automatically, or set explicitly:
 # AI_PROMPT_API_KEY="sk-..."
-# AI_PROMPT_MODEL="gpt-4o"           # default
+# AI_PROMPT_MODEL="gpt-4o-mini"      # default
 # AI_PROMPT_API_URL="https://..."    # for compatible APIs
 ```
 
