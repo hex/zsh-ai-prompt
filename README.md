@@ -1,4 +1,4 @@
-# ai-prompt
+# zsh-ai-prompt
 
 Zsh plugin that provides an inline AI query mode via ZLE widgets. Press a keybinding to enter AI mode, type a natural language query, and get a shell command back in your buffer — ready to edit or execute.
 
@@ -9,13 +9,13 @@ Zsh plugin that provides an inline AI query mode via ZLE widgets. Press a keybin
 Clone into your custom plugins directory:
 
 ```bash
-git clone https://github.com/hex/zsh-ai-prompt.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/ai-prompt
+git clone https://github.com/hex/zsh-ai-prompt.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-ai-prompt
 ```
 
 Add to your `.zshrc`:
 
 ```bash
-plugins=(... ai-prompt)
+plugins=(... zsh-ai-prompt)
 ```
 
 ### Manual
@@ -23,7 +23,7 @@ plugins=(... ai-prompt)
 Source the plugin from your `.zshrc`:
 
 ```bash
-source /path/to/ai-prompt/ai-prompt.plugin.zsh
+source /path/to/zsh-ai-prompt/zsh-ai-prompt.plugin.zsh
 ```
 
 ## Usage
@@ -36,11 +36,13 @@ source /path/to/ai-prompt/ai-prompt.plugin.zsh
 
 ## Configuration
 
-Set these variables in your `.zshrc` **before** the plugin loads:
+Works out of the box with the `claude` CLI installed — no configuration needed. For other backends, set `AI_PROMPT_BACKEND` and have the provider's API key in your environment.
+
+All settings are optional and can be set in your `.zshrc` before the plugin loads:
 
 ```bash
 # Backend: claude (default), openai, gemini, ollama
-AI_PROMPT_BACKEND="claude"
+AI_PROMPT_BACKEND="gemini"
 
 # Keybinding (default: Alt-A)
 AI_PROMPT_KEYBINDING="^[a"
@@ -61,7 +63,7 @@ Uses the `claude` CLI if available (`claude --print`), otherwise falls back to t
 
 ```bash
 AI_PROMPT_BACKEND="claude"
-# With CLI installed: uses existing CLI auth, no API key needed
+# With CLI installed: works with zero config, uses existing CLI auth
 AI_PROMPT_MODEL="sonnet"  # override CLI model (default: haiku)
 
 # Without CLI: auto-detects $ANTHROPIC_API_KEY, or set explicitly:
