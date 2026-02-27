@@ -33,13 +33,18 @@ _ai_prompt_query_claude_api() {
 _ai_prompt_query_claude() {
     local query="$1" system="$2"
 
-    if (( $+commands[claude] )); then
+    local api_key="${ZSH_AI_PROMPT_API_KEY:-$ANTHROPIC_API_KEY}"
+
+    if [[ -n "$api_key" ]]; then
+        _ai_prompt_query_claude_api "$query" "$system"
+    elif (( ZSH_AI_PROMPT_USE_CLI )) && (( $+commands[claude] )); then
         local -a cmd=(claude --print)
         [[ -n "$system" ]] && cmd+=(--system-prompt "$system")
         cmd+=(--model "${ZSH_AI_PROMPT_MODEL:-haiku}")
         cmd+=("$query")
         "${cmd[@]}" 2>/dev/null
     else
-        _ai_prompt_query_claude_api "$query" "$system"
+        echo "ai-prompt: ANTHROPIC_API_KEY not set and claude CLI not found" >&2
+        return 1
     fi
 }

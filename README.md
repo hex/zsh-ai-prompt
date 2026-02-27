@@ -77,22 +77,25 @@ ZSH_AI_PROMPT_CONTEXT="Output terminal commands that work on macOS."
 # Visual styling (region_highlight format)
 ZSH_AI_PROMPT_SYMBOL_STYLE="fg=magenta"
 ZSH_AI_PROMPT_TEXT_STYLE="fg=242"
+
+# Disable CLI usage (always use API, even if CLI is installed)
+ZSH_AI_PROMPT_USE_CLI=0
 ```
 
 ## Backends
 
 ### Claude (default)
 
-Uses the `claude` CLI if available (`claude --print`), otherwise falls back to the Anthropic Messages API with `ANTHROPIC_API_KEY`.
+Uses the Anthropic Messages API if `ANTHROPIC_API_KEY` is set (faster), otherwise falls back to the `claude` CLI (`claude --print`).
 
 ```bash
 ZSH_AI_PROMPT_BACKEND="claude"
-# With CLI installed: works with zero config, uses existing CLI auth
-ZSH_AI_PROMPT_MODEL="sonnet"  # override CLI model (default: haiku)
-
-# Without CLI: auto-detects $ANTHROPIC_API_KEY, or set explicitly:
+# With API key: auto-detects $ANTHROPIC_API_KEY, or set explicitly:
 # ZSH_AI_PROMPT_API_KEY="sk-ant-..."
 # ZSH_AI_PROMPT_MODEL="claude-haiku-4-5"  # default (alias, always latest)
+
+# Without API key: uses CLI with zero config and existing CLI auth
+# ZSH_AI_PROMPT_MODEL="sonnet"  # override CLI model (default: haiku)
 ```
 
 ### OpenAI
@@ -109,11 +112,14 @@ ZSH_AI_PROMPT_BACKEND="openai"
 
 ### Gemini
 
-Auto-detects `GEMINI_API_KEY` from your environment. Uses Gemini's OpenAI-compatible endpoint.
+Uses the `gemini` CLI if available, otherwise falls back to the Gemini API with `GEMINI_API_KEY`.
 
 ```bash
 ZSH_AI_PROMPT_BACKEND="gemini"
-# Uses $GEMINI_API_KEY automatically, or set explicitly:
+# With CLI installed: works with zero config, uses existing CLI auth
+# ZSH_AI_PROMPT_MODEL="gemini-2.5-flash"  # override model (default: gemini-2.5-flash-lite)
+
+# Without CLI: auto-detects $GEMINI_API_KEY, or set explicitly:
 # ZSH_AI_PROMPT_API_KEY="..."
 # ZSH_AI_PROMPT_MODEL="gemini-2.5-flash-lite"  # default, or uses $GEMINI_MODEL
 ```
