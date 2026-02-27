@@ -8,9 +8,6 @@ AI_PROMPT_SYSTEM_PROMPT="${AI_PROMPT_SYSTEM_PROMPT:-Respond with only the comman
 AI_PROMPT_SYMBOL_STYLE="${AI_PROMPT_SYMBOL_STYLE:-fg=magenta}"
 AI_PROMPT_TEXT_STYLE="${AI_PROMPT_TEXT_STYLE:-fg=242}"
 
-# Load user config if present.
-[[ -f ~/.config/ai-prompt/config.zsh ]] && source ~/.config/ai-prompt/config.zsh
-
 # Load the active backend.
 _ai_prompt_plugin_dir="${0:A:h}"
 if [[ -f "$_ai_prompt_plugin_dir/backends/${AI_PROMPT_BACKEND}.zsh" ]]; then
