@@ -136,6 +136,4 @@ ZSH_AI_PROMPT_BACKEND="ollama"
 ## Dependencies
 
 - **zsh** 5.0+ (for region_highlight and zle -F widget mode)
-- **jq** (for API backends — not needed when using the claude or gemini CLI)
-- **curl** (for API backends — not needed when using the claude or gemini CLI)
-- **claude CLI** or **ANTHROPIC_API_KEY** (for claude backend — one or the other)
+- **jq** and **curl** (for API backends — not needed when using the claude or gemini CLI)
