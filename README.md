@@ -117,10 +117,10 @@ Uses the Gemini API if `GEMINI_API_KEY` is set (faster), otherwise falls back to
 ZSH_AI_PROMPT_BACKEND="gemini"
 # With API key: auto-detects $GEMINI_API_KEY, or set explicitly:
 # ZSH_AI_PROMPT_API_KEY="..."
-# ZSH_AI_PROMPT_MODEL="gemini-2.5-flash-lite"  # default, or uses $GEMINI_MODEL
+# ZSH_AI_PROMPT_MODEL="gemini-3.1-flash-lite-preview"  # default, or uses $GEMINI_MODEL
 
 # Without API key: uses CLI with zero config and existing CLI auth
-# ZSH_AI_PROMPT_MODEL="gemini-2.5-flash"  # override model (default: gemini-2.5-flash-lite)
+# ZSH_AI_PROMPT_MODEL="gemini-3.1-flash-lite-preview"  # override model
 ```
 
 ### Ollama
