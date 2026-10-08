@@ -4,7 +4,7 @@
 source "${0:A:h}/_openai_compat.zsh"
 
 _ai_prompt_model_gemini() {
-    print -r -- "${ZSH_AI_PROMPT_MODEL:-${GEMINI_MODEL:-gemini-3.1-flash-lite-preview}}"
+    print -r -- "${ZSH_AI_PROMPT_MODEL:-${GEMINI_MODEL:-gemini-flash-lite-latest}}"
 }
 
 _ai_prompt_query_gemini_api() {

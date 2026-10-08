@@ -2,7 +2,7 @@
 
 Zsh plugin that provides an inline AI query mode via ZLE widgets. Press a keybinding to enter AI mode, type a natural language query, and get a shell command back in your buffer — ready to edit or execute.
 
-![Demo](assets/demo.gif)
+<img src="assets/how-it-works.svg" width="100%" alt="A terminal: Alt-A opens AI mode, you type a request in plain English, Enter sends it, a spinner runs, and the shell command replaces the request in the buffer">
 
 ## Installation
 
@@ -57,6 +57,10 @@ source ~/.zsh/zsh-ai-prompt/zsh-ai-prompt.plugin.zsh
 
 If the request fails (bad key, unknown model, rate limit, timeout, no network), your original buffer comes back and the error appears below the prompt. The plugin strips a markdown code fence around the response before putting it in the buffer.
 
+A recording of the real thing:
+
+![Demo](assets/demo.gif)
+
 ## Configuration
 
 Works out of the box with the `claude` CLI installed — no configuration needed. For other backends, set `ZSH_AI_PROMPT_BACKEND` and have the provider's API key in your environment.
@@ -64,14 +68,14 @@ Works out of the box with the `claude` CLI installed — no configuration needed
 All settings are optional and can be set in your `.zshrc` before the plugin loads:
 
 ```bash
-# Backend: claude (default), openai, gemini, ollama
+# Backend: claude (default), openai, gemini, grok, ollama
 ZSH_AI_PROMPT_BACKEND="claude"
 
 # Keybinding (default: Alt-A)
 ZSH_AI_PROMPT_KEYBINDING="^[a"
 
 # System prompt sent with every query
-ZSH_AI_PROMPT_SYSTEM_PROMPT="Respond with only the command(s), no explanation."
+ZSH_AI_PROMPT_SYSTEM_PROMPT="Respond with only the command(s), no explanation. No markdown, the command should be a single line and ready to run in the terminal."
 
 # Visual styling (region_highlight format)
 ZSH_AI_PROMPT_SYMBOL_STYLE="fg=magenta"
@@ -89,6 +93,27 @@ ZSH_AI_PROMPT_TIMEOUT=60
 
 ## Backends
 
+Pick one with `ZSH_AI_PROMPT_BACKEND`. Each backend finds its API key in the environment variable it already uses, so most setups need one line. `ZSH_AI_PROMPT_MODEL` overrides the model for whichever backend is active.
+
+| Backend | API key | Default model | Time per query* |
+|---|---|---|---|
+| `claude` | `ANTHROPIC_API_KEY`, or the `claude` CLI login | `claude-haiku-5-5` (CLI: `haiku`) | 0.7 s (CLI: about 4 s) |
+| `gemini` | `GEMINI_API_KEY`, or the `gemini` CLI login | `gemini-flash-lite-latest` | 0.7–1 s |
+| `openai` | `OPENAI_API_KEY` | `gpt-6-luna` | 2.5–5 s |
+| `grok` | `XAI_API_KEY` | `grok-4.7` | 3–6 s |
+| `ollama` | none, runs locally | `llama3` | depends on your machine |
+
+\*Measured from one machine on 2026-10-08 with the default system prompt; your numbers depend on network and load.
+
+Faster models if the default feels slow:
+
+```bash
+ZSH_AI_PROMPT_BACKEND="openai"; ZSH_AI_PROMPT_MODEL="gpt-5.6-luna"   # 1.3–2.8 s
+ZSH_AI_PROMPT_BACKEND="openai"; ZSH_AI_PROMPT_MODEL="gpt-4.1-nano"   # 1–1.9 s
+ZSH_AI_PROMPT_BACKEND="gemini"; ZSH_AI_PROMPT_MODEL="gemini-3.5-flash-lite"   # pinned, 0.8 s
+ZSH_AI_PROMPT_BACKEND="grok";   ZSH_AI_PROMPT_MODEL="grok-4.20-0309-non-reasoning"   # 1–1.4 s, but sometimes adds prose
+```
+
 ### Claude (default)
 
 Uses the Anthropic Messages API if `ANTHROPIC_API_KEY` is set (about 1 second per query), otherwise falls back to the `claude` CLI (`claude --print`, about 4 seconds). The CLI runs as a plain model call: tools, skills, your user and project settings (hooks, plugins, MCP servers) and session saving are all turned off.
@@ -97,7 +122,7 @@ Uses the Anthropic Messages API if `ANTHROPIC_API_KEY` is set (about 1 second pe
 ZSH_AI_PROMPT_BACKEND="claude"
 # With API key: auto-detects $ANTHROPIC_API_KEY, or set explicitly:
 # ZSH_AI_PROMPT_API_KEY="sk-ant-..."
-# ZSH_AI_PROMPT_MODEL="claude-haiku-4-5"  # default
+# ZSH_AI_PROMPT_MODEL="claude-haiku-5-5"  # default; the API has no "latest" alias, so this names a version
 # ZSH_AI_PROMPT_API_URL="https://..."     # default: https://api.anthropic.com/v1/messages
 
 # Without API key: uses CLI with zero config and existing CLI auth
@@ -112,7 +137,7 @@ Auto-detects `OPENAI_API_KEY` from your environment. Works with any OpenAI-compa
 ZSH_AI_PROMPT_BACKEND="openai"
 # Uses $OPENAI_API_KEY automatically, or set explicitly:
 # ZSH_AI_PROMPT_API_KEY="sk-..."
-# ZSH_AI_PROMPT_MODEL="gpt-4.1-nano"     # default
+# ZSH_AI_PROMPT_MODEL="gpt-6-luna"       # default
 # ZSH_AI_PROMPT_API_URL="https://..."    # for compatible APIs
 ```
 
@@ -124,11 +149,23 @@ Uses the Gemini API if `GEMINI_API_KEY` is set (about 1 second per query), other
 ZSH_AI_PROMPT_BACKEND="gemini"
 # With API key: auto-detects $GEMINI_API_KEY, or set explicitly:
 # ZSH_AI_PROMPT_API_KEY="..."
-# ZSH_AI_PROMPT_MODEL="gemini-3.1-flash-lite-preview"  # default, or uses $GEMINI_MODEL
+# ZSH_AI_PROMPT_MODEL="gemini-flash-lite-latest"  # default, or uses $GEMINI_MODEL; tracks the newest Flash Lite
 # ZSH_AI_PROMPT_API_URL="https://..."  # default: Gemini's OpenAI-compatible endpoint
 
 # Without API key: uses CLI with zero config and existing CLI auth
-# ZSH_AI_PROMPT_MODEL="gemini-3.1-flash-lite-preview"  # override model
+# ZSH_AI_PROMPT_MODEL="gemini-3.5-flash-lite"  # override model
+```
+
+### Grok
+
+Uses xAI's OpenAI-compatible API. Auto-detects `XAI_API_KEY` from your environment.
+
+```bash
+ZSH_AI_PROMPT_BACKEND="grok"
+# Uses $XAI_API_KEY automatically, or set explicitly:
+# ZSH_AI_PROMPT_API_KEY="xai-..."
+# ZSH_AI_PROMPT_MODEL="grok-4.7"         # default
+# ZSH_AI_PROMPT_API_URL="https://..."    # default: https://api.x.ai/v1/chat/completions
 ```
 
 ### Ollama

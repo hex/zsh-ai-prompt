@@ -4,7 +4,7 @@
 source "${0:A:h}/_openai_compat.zsh"
 
 _ai_prompt_model_openai() {
-    print -r -- "${ZSH_AI_PROMPT_MODEL:-gpt-4.1-nano}"
+    print -r -- "${ZSH_AI_PROMPT_MODEL:-gpt-6-luna}"
 }
 
 _ai_prompt_query_openai() {

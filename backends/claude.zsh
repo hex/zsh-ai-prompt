@@ -11,7 +11,7 @@ _ai_prompt_claude_api_key() {
 # which one the query will use.
 _ai_prompt_model_claude() {
     if [[ -n "$(_ai_prompt_claude_api_key)" ]]; then
-        print -r -- "${ZSH_AI_PROMPT_MODEL:-claude-haiku-4-5}"
+        print -r -- "${ZSH_AI_PROMPT_MODEL:-claude-haiku-5-5}"
     else
         print -r -- "${ZSH_AI_PROMPT_MODEL:-haiku}"
     fi

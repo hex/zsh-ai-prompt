@@ -4,7 +4,7 @@
 # -- Configuration defaults --
 ZSH_AI_PROMPT_BACKEND="${ZSH_AI_PROMPT_BACKEND:-claude}"
 ZSH_AI_PROMPT_KEYBINDING="${ZSH_AI_PROMPT_KEYBINDING:-^[a}"  # Alt-A
-ZSH_AI_PROMPT_SYSTEM_PROMPT="${ZSH_AI_PROMPT_SYSTEM_PROMPT:-Respond with only the command(s), no explanation.}"
+ZSH_AI_PROMPT_SYSTEM_PROMPT="${ZSH_AI_PROMPT_SYSTEM_PROMPT:-Respond with only the command(s), no explanation. No markdown, the command should be a single line and ready to run in the terminal.}"
 ZSH_AI_PROMPT_SYMBOL_STYLE="${ZSH_AI_PROMPT_SYMBOL_STYLE:-fg=magenta}"
 ZSH_AI_PROMPT_TEXT_STYLE="${ZSH_AI_PROMPT_TEXT_STYLE:-fg=242}"
 ZSH_AI_PROMPT_USE_CLI="${ZSH_AI_PROMPT_USE_CLI:-1}"
