@@ -10,8 +10,9 @@ ZSH_AI_PROMPT_TEXT_STYLE="${ZSH_AI_PROMPT_TEXT_STYLE:-fg=242}"
 ZSH_AI_PROMPT_USE_CLI="${ZSH_AI_PROMPT_USE_CLI:-1}"
 ZSH_AI_PROMPT_TIMEOUT="${ZSH_AI_PROMPT_TIMEOUT:-60}"  # seconds, for API requests
 
-# sysparams[pid] gives the request subshell's own pid, so cancel can kill it.
-zmodload -F zsh/system p:sysparams
+# sysparams[pid] gives the request subshell's own pid, so cancel can kill it;
+# sysread reads the response without blocking the line editor.
+zmodload -F zsh/system p:sysparams b:sysread
 
 # Load the active backend.
 _ai_prompt_plugin_dir="${0:A:h}"
@@ -25,6 +26,7 @@ typeset -g _ZSH_AI_PROMPT_WAITING=0
 typeset -g _ZSH_AI_PROMPT_FD=''
 typeset -g _ZSH_AI_PROMPT_PID=''
 typeset -g _ZSH_AI_PROMPT_RESULT_MARKER='__ai_prompt_result__'
+typeset -g _ZSH_AI_PROMPT_OUTPUT=''
 typeset -g _ZSH_AI_PROMPT_SAVED_BUFFER=''
 typeset -g _ZSH_AI_PROMPT_SAVED_CURSOR=0
 typeset -g _ZSH_AI_PROMPT_ANIM_FD=''
@@ -102,6 +104,7 @@ _ai_prompt_effective_model() {
 _ai_prompt_build_keymap() {
     bindkey -N ai-prompt main
     bindkey -M ai-prompt '^M'    _ai_prompt_submit   # Enter
+    bindkey -M ai-prompt '^J'    _ai_prompt_submit   # Ctrl-J (also accept-line in main)
     bindkey -M ai-prompt '^['    _ai_prompt_cancel    # Escape (standalone, after KEYTIMEOUT)
     bindkey -M ai-prompt '^[^['  _ai_prompt_cancel    # Double-Escape (instant cancel)
     bindkey -M ai-prompt '^C'    _ai_prompt_cancel    # Ctrl-C
@@ -153,8 +156,15 @@ _ai_prompt_activate() {
 zle -N _ai_prompt_activate
 
 _ai_prompt_submit() {
+    # While a request is pending, Enter cancels it. Anything typed meanwhile
+    # is discarded, never executed.
+    if (( _ZSH_AI_PROMPT_WAITING )); then
+        _ai_prompt_cancel
+        return
+    fi
+
     # If AI mode is not active, fall through to normal accept-line.
-    if (( ! _ZSH_AI_PROMPT_ACTIVE || _ZSH_AI_PROMPT_WAITING )); then
+    if (( ! _ZSH_AI_PROMPT_ACTIVE )); then
         zle accept-line
         return
     fi
@@ -186,6 +196,7 @@ _ai_prompt_submit() {
     # Launch async API call. The subshell writes its own pid first (so
     # cancel can kill it), then any backend stderr as diagnostics, then the
     # result marker with the exit status, then the response.
+    _ZSH_AI_PROMPT_OUTPUT=''
     exec {_ZSH_AI_PROMPT_FD}< <(
         exec 2>&1
         print -r -- "$sysparams[pid]"
@@ -215,18 +226,24 @@ zle -N _ai_prompt_cancel
 _ai_prompt_handler() {
     local fd="$1"
 
-    # Deregister watcher first (avoids busy-loop bug).
+    # Called whenever the fd is readable. Take what is available and return;
+    # reading to EOF here would freeze the line editor (and Esc) while a
+    # backend that wrote early diagnostics is still running.
+    local chunk
+    if sysread -i "$fd" chunk; then
+        _ZSH_AI_PROMPT_OUTPUT+="$chunk"
+        return
+    fi
+    # sysread status 5 is EOF: the request subshell has exited. Any other
+    # failure also ends the request; the output so far is reported below.
+
+    # Deregister watcher first (avoids busy-loop bug), then close fd.
     zle -F "$fd"
-
-    # Read full response. Widget handlers with -w only get the fd argument
-    # (no error string), so just attempt the read.
-    local output=''
-    output="$(cat <&$fd 2>/dev/null)"
-
-    # Close fd. The request subshell has exited.
     exec {fd}<&-
     _ZSH_AI_PROMPT_FD=''
     _ZSH_AI_PROMPT_PID=''
+    local output="$_ZSH_AI_PROMPT_OUTPUT"
+    _ZSH_AI_PROMPT_OUTPUT=''
 
     # Split into diagnostics, exit status and response. Without the marker
     # the subshell died early, and everything it wrote is diagnostics.
@@ -291,6 +308,7 @@ _ai_prompt_stop_request() {
         _ai_prompt_kill_tree "$_ZSH_AI_PROMPT_PID"
         _ZSH_AI_PROMPT_PID=''
     fi
+    _ZSH_AI_PROMPT_OUTPUT=''
 }
 
 # Kills a process and its descendants, children first so none get

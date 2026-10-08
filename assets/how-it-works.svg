@@ -36,8 +36,9 @@
         <text x="96.4" y="150" fill="#9A94A8">thinking...</text>
       </g>
 
-      <!-- the answer replaces the buffer, right after the prompt -->
-      <g opacity="0"><animate attributeName="opacity" dur="14.0s" repeatCount="indefinite" calcMode="discrete" values="0;1;0" keyTimes="0;0.4993;0.9571"/>
+      <!-- the answer replaces the buffer, right after the prompt. Base opacity 1
+           so a renderer without SMIL still shows the finished state -->
+      <g opacity="1"><animate attributeName="opacity" dur="14.0s" repeatCount="indefinite" calcMode="discrete" values="0;1;0" keyTimes="0;0.4993;0.9571"/>
         <text x="34" y="150" fill="#4F4D48">find . -name &quot;*.log&quot; -type f -mtime +7</text>
       </g>
 
@@ -81,7 +82,7 @@
       <text x="54" y="301" fill="#FFFFFF" font-size="18" font-weight="700" text-anchor="middle">3</text>
       <text x="84" y="302" fill="#4F4D48">Enter sends it to Claude, OpenAI, Gemini, Grok or Ollama</text>
     </g>
-    <g opacity="0" font-size="22"><animate attributeName="opacity" dur="14.0s" repeatCount="indefinite" calcMode="discrete" values="0;1;0" keyTimes="0;0.4993;0.9571"/>
+    <g opacity="1" font-size="22"><animate attributeName="opacity" dur="14.0s" repeatCount="indefinite" calcMode="discrete" values="0;1;0" keyTimes="0;0.4993;0.9571"/>
       <circle cx="54" cy="294" r="15" fill="#D97757"/>
       <text x="54" y="301" fill="#FFFFFF" font-size="18" font-weight="700" text-anchor="middle">4</text>
       <text x="84" y="302" fill="#4F4D48">the command lands in your buffer: Enter runs it, or edit it first</text>
