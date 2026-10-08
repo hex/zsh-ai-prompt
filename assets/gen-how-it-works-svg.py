@@ -70,6 +70,32 @@ def visible(*spans):
     return steps("opacity", points)
 
 
+FADE = 0.3        # seconds for a fade in or out
+
+
+def fade(*spans, enter=(0, 0), leave=(0, 0)):
+    """Fades in at each span's start and out at its end, sliding from the
+    `enter` offset to rest and from rest to the `leave` offset (dx, dy)."""
+    eps = 0.01
+    opacity, offset = [(0.0, 0)], [(0.0, enter)]
+    for start, end in spans:
+        opacity += [(start, 0), (start + FADE, 1), (end - FADE, 1), (end, 0)]
+        offset += [(start, enter), (start + FADE, (0, 0)), (end - FADE, (0, 0)),
+                   (end, leave), (end + eps, enter)]
+    opacity.append((T, 0))
+    offset.append((T, enter))
+    xy = lambda p: f"{p[0]} {p[1]}"
+    anim = (f'<animate attributeName="opacity" dur="{T}s" repeatCount="indefinite" '
+            f'values="{";".join(str(v) for _, v in opacity)}" '
+            f'keyTimes="{";".join(kt(t) for t, _ in opacity)}"/>')
+    if enter != (0, 0) or leave != (0, 0):
+        anim += (f'<animateTransform attributeName="transform" type="translate" '
+                 f'dur="{T}s" repeatCount="indefinite" '
+                 f'values="{";".join(xy(v) for _, v in offset)}" '
+                 f'keyTimes="{";".join(kt(t) for t, _ in offset)}"/>')
+    return anim
+
+
 def steps(attr, points):
     """Discrete animation of any attribute through (time, value) points."""
     values = ";".join(str(v) for _, v in points)
@@ -142,7 +168,7 @@ queries = "".join(f"""
 # The last answer has base opacity 1, so a renderer without SMIL still shows
 # a finished state.
 answers = "".join(f"""
-      <g opacity="{1 if i == last else 0}">{visible((c.reply, c.end - 0.3))}
+      <g opacity="{1 if i == last else 0}">{fade((c.reply, c.end - 0.3), enter=(0, 10))}
         {text(X_BUF, ROW_B, c.answer, INK, fixed_width(len(c.answer)))}
       </g>""" for i, c in enumerate(CYCLES))
 
@@ -170,7 +196,7 @@ svg = f'''<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="wh
       {text(0, ROW_B, "❯", PROMPT_GREEN, ' font-weight="700"')}
 
       <!-- AI mode indicator (PREDISPLAY), between Alt-A and Enter -->
-      <g opacity="0">{visible(*[(c.alt + 0.2, c.enter) for c in CYCLES])}
+      <g opacity="0">{fade(*[(c.alt + 0.2, c.enter) for c in CYCLES])}
         {text(X_GLYPH, ROW_B, "⟡", MAGENTA)}
         {text(X_LABEL, ROW_B, indicator_text, MUTED, fixed_width(len(indicator_text)))}
       </g>
@@ -178,7 +204,7 @@ svg = f'''<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="wh
       <!-- the request, typed on the line below the indicator -->{queries}
 
       <!-- waiting: spinner in the indicator line -->
-      <g opacity="0">{visible(*[(c.enter, c.reply) for c in CYCLES])}
+      <g opacity="0">{fade(*[(c.enter, c.reply) for c in CYCLES])}
         {"".join(spinner_glyphs)}
         {text(X_LABEL, ROW_B, "thinking...", MUTED)}
       </g>
@@ -196,7 +222,7 @@ svg = f'''<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="wh
     </g>
 
     <!-- key presses -->
-    {"".join(f"""<g opacity="0">{visible(*spans)}
+    {"".join(f"""<g opacity="0">{fade(*spans, enter=(0, -8), leave=(0, 4))}
       <rect x="{1344 - 40 - w}" y="166" width="{w}" height="46" rx="10" fill="#FFFFFF" stroke="{FAINT}" stroke-width="2"/>
       <rect x="{1344 - 40 - w}" y="206" width="{w}" height="6" rx="3" fill="{FAINT}"/>
       <text x="{1344 - 40 - w / 2}" y="197" fill="{INK}" font-size="22" text-anchor="middle">{escape(label)}</text>
@@ -205,7 +231,7 @@ svg = f'''<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="wh
 
     <!-- what is happening, one step at a time -->
     <line x1="40" y1="246" x2="1304" y2="246" stroke="{FAINT}" stroke-width="2"/>
-    {"".join(f"""<g opacity="{1 if n == len(caption_texts) else 0}" font-size="22">{visible(*spans)}
+    {"".join(f"""<g opacity="{1 if n == len(caption_texts) else 0}" font-size="22">{fade(*spans, enter=(0, 12), leave=(0, -12))}
       <circle cx="54" cy="294" r="15" fill="{ACCENT}"/>
       <text x="54" y="301" fill="#FFFFFF" font-size="18" font-weight="700" text-anchor="middle">{n}</text>
       <text x="84" y="302" fill="{INK}">{escape(caption)}</text>

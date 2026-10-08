@@ -22,7 +22,7 @@
       <text x="0" y="150" fill="#4E9A06" font-weight="700">❯</text>
 
       <!-- AI mode indicator (PREDISPLAY), between Alt-A and Enter -->
-      <g opacity="0"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" calcMode="discrete" values="0;1;0;1;0" keyTimes="0;0.0448;0.2599;0.5362;0.7573"/>
+      <g opacity="0"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" values="0;0;1;1;0;0;1;1;0;0" keyTimes="0;0.0448;0.056;0.2487;0.2599;0.5362;0.5474;0.7461;0.7573;1"/>
         <text x="34" y="150" fill="#B03A9E">⟡</text>
         <text x="66.8" y="150" fill="#9A94A8" textLength="889.2" lengthAdjust="spacingAndGlyphs">AI mode (claude-haiku-5-5) — Enter to send, Esc to cancel</text>
       </g>
@@ -36,16 +36,16 @@
       </g>
 
       <!-- waiting: spinner in the indicator line -->
-      <g opacity="0"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" calcMode="discrete" values="0;1;0;1;0" keyTimes="0;0.2599;0.342;0.7573;0.8394"/>
+      <g opacity="0"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" values="0;0;1;1;0;0;1;1;0;0" keyTimes="0;0.2599;0.2711;0.3308;0.342;0.7573;0.7685;0.8282;0.8394;1"/>
         <text x="34" y="150" fill="#B03A9E" opacity="0">⠋<animate attributeName="opacity" dur="0.8s" repeatCount="indefinite" calcMode="discrete" values="1;0" keyTimes="0;0.10"/></text><text x="34" y="150" fill="#B03A9E" opacity="0">⠙<animate attributeName="opacity" dur="0.8s" repeatCount="indefinite" calcMode="discrete" values="0;1;0" keyTimes="0;0.10;0.20"/></text><text x="34" y="150" fill="#B03A9E" opacity="0">⠹<animate attributeName="opacity" dur="0.8s" repeatCount="indefinite" calcMode="discrete" values="0;1;0" keyTimes="0;0.20;0.30"/></text><text x="34" y="150" fill="#B03A9E" opacity="0">⠸<animate attributeName="opacity" dur="0.8s" repeatCount="indefinite" calcMode="discrete" values="0;1;0" keyTimes="0;0.30;0.40"/></text><text x="34" y="150" fill="#B03A9E" opacity="0">⠼<animate attributeName="opacity" dur="0.8s" repeatCount="indefinite" calcMode="discrete" values="0;1;0" keyTimes="0;0.40;0.50"/></text><text x="34" y="150" fill="#B03A9E" opacity="0">⠴<animate attributeName="opacity" dur="0.8s" repeatCount="indefinite" calcMode="discrete" values="0;1;0" keyTimes="0;0.50;0.60"/></text><text x="34" y="150" fill="#B03A9E" opacity="0">⠦<animate attributeName="opacity" dur="0.8s" repeatCount="indefinite" calcMode="discrete" values="0;1;0" keyTimes="0;0.60;0.70"/></text><text x="34" y="150" fill="#B03A9E" opacity="0">⠧<animate attributeName="opacity" dur="0.8s" repeatCount="indefinite" calcMode="discrete" values="0;1;0" keyTimes="0;0.70;0.80"/></text><text x="34" y="150" fill="#B03A9E" opacity="0">⠇<animate attributeName="opacity" dur="0.8s" repeatCount="indefinite" calcMode="discrete" values="0;1;0" keyTimes="0;0.80;0.90"/></text><text x="34" y="150" fill="#B03A9E" opacity="0">⠏<animate attributeName="opacity" dur="0.8s" repeatCount="indefinite" calcMode="discrete" values="0;1;0" keyTimes="0;0.90;1.00"/></text>
         <text x="66.8" y="150" fill="#9A94A8">thinking...</text>
       </g>
 
       <!-- the answer replaces the buffer, right after the prompt -->
-      <g opacity="0"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" calcMode="discrete" values="0;1;0" keyTimes="0;0.342;0.4802"/>
+      <g opacity="0"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.342;0.3532;0.469;0.4802;1"/><animateTransform attributeName="transform" type="translate" dur="26.78s" repeatCount="indefinite" values="0 10;0 10;0 0;0 0;0 0;0 10;0 10" keyTimes="0;0.342;0.3532;0.469;0.4802;0.4806;1"/>
         <text x="34" y="150" fill="#4F4D48" textLength="592.8" lengthAdjust="spacingAndGlyphs">find . -name &quot;*.log&quot; -type f -mtime +7</text>
       </g>
-      <g opacity="1"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" calcMode="discrete" values="0;1;0" keyTimes="0;0.8394;0.9776"/>
+      <g opacity="1"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.8394;0.8506;0.9664;0.9776;1"/><animateTransform attributeName="transform" type="translate" dur="26.78s" repeatCount="indefinite" values="0 10;0 10;0 0;0 0;0 0;0 10;0 10" keyTimes="0;0.8394;0.8506;0.9664;0.9776;0.978;1"/>
         <text x="34" y="150" fill="#4F4D48" textLength="468.0" lengthAdjust="spacingAndGlyphs">lsof -ti :3000 | xargs kill -9</text>
       </g>
 
@@ -60,12 +60,12 @@
     </g>
 
     <!-- key presses -->
-    <g opacity="0"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" calcMode="discrete" values="0;1;0;1;0" keyTimes="0;0.0373;0.112;0.5288;0.6034"/>
+    <g opacity="0"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" values="0;0;1;1;0;0;1;1;0;0" keyTimes="0;0.0373;0.0485;0.1008;0.112;0.5288;0.54;0.5922;0.6034;1"/><animateTransform attributeName="transform" type="translate" dur="26.78s" repeatCount="indefinite" values="0 -8;0 -8;0 0;0 0;0 4;0 -8;0 -8;0 0;0 0;0 4;0 -8;0 -8" keyTimes="0;0.0373;0.0485;0.1008;0.112;0.1124;0.5288;0.54;0.5922;0.6034;0.6038;1"/>
       <rect x="1192" y="166" width="112" height="46" rx="10" fill="#FFFFFF" stroke="#E2DECE" stroke-width="2"/>
       <rect x="1192" y="206" width="112" height="6" rx="3" fill="#E2DECE"/>
       <text x="1248.0" y="197" fill="#4F4D48" font-size="22" text-anchor="middle">⌥ A</text>
     </g>
-    <g opacity="0"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" calcMode="discrete" values="0;1;0;1;0" keyTimes="0;0.2599;0.342;0.7573;0.8394"/>
+    <g opacity="0"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" values="0;0;1;1;0;0;1;1;0;0" keyTimes="0;0.2599;0.2711;0.3308;0.342;0.7573;0.7685;0.8282;0.8394;1"/><animateTransform attributeName="transform" type="translate" dur="26.78s" repeatCount="indefinite" values="0 -8;0 -8;0 0;0 0;0 4;0 -8;0 -8;0 0;0 0;0 4;0 -8;0 -8" keyTimes="0;0.2599;0.2711;0.3308;0.342;0.3424;0.7573;0.7685;0.8282;0.8394;0.8398;1"/>
       <rect x="1154" y="166" width="150" height="46" rx="10" fill="#FFFFFF" stroke="#E2DECE" stroke-width="2"/>
       <rect x="1154" y="206" width="150" height="6" rx="3" fill="#E2DECE"/>
       <text x="1229.0" y="197" fill="#4F4D48" font-size="22" text-anchor="middle">⏎ Enter</text>
@@ -74,22 +74,22 @@
 
     <!-- what is happening, one step at a time -->
     <line x1="40" y1="246" x2="1304" y2="246" stroke="#E2DECE" stroke-width="2"/>
-    <g opacity="0" font-size="22"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" calcMode="discrete" values="0;1;0;1;0" keyTimes="0;0.0373;0.112;0.5288;0.6034"/>
+    <g opacity="0" font-size="22"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" values="0;0;1;1;0;0;1;1;0;0" keyTimes="0;0.0373;0.0485;0.1008;0.112;0.5288;0.54;0.5922;0.6034;1"/><animateTransform attributeName="transform" type="translate" dur="26.78s" repeatCount="indefinite" values="0 12;0 12;0 0;0 0;0 -12;0 12;0 12;0 0;0 0;0 -12;0 12;0 12" keyTimes="0;0.0373;0.0485;0.1008;0.112;0.1124;0.5288;0.54;0.5922;0.6034;0.6038;1"/>
       <circle cx="54" cy="294" r="15" fill="#D97757"/>
       <text x="54" y="301" fill="#FFFFFF" font-size="18" font-weight="700" text-anchor="middle">1</text>
       <text x="84" y="302" fill="#4F4D48">Alt-A opens AI mode</text>
     </g>
-    <g opacity="0" font-size="22"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" calcMode="discrete" values="0;1;0;1;0" keyTimes="0;0.112;0.2599;0.6034;0.7573"/>
+    <g opacity="0" font-size="22"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" values="0;0;1;1;0;0;1;1;0;0" keyTimes="0;0.112;0.1232;0.2487;0.2599;0.6034;0.6146;0.7461;0.7573;1"/><animateTransform attributeName="transform" type="translate" dur="26.78s" repeatCount="indefinite" values="0 12;0 12;0 0;0 0;0 -12;0 12;0 12;0 0;0 0;0 -12;0 12;0 12" keyTimes="0;0.112;0.1232;0.2487;0.2599;0.2603;0.6034;0.6146;0.7461;0.7573;0.7577;1"/>
       <circle cx="54" cy="294" r="15" fill="#D97757"/>
       <text x="54" y="301" fill="#FFFFFF" font-size="18" font-weight="700" text-anchor="middle">2</text>
       <text x="84" y="302" fill="#4F4D48">ask for what you want in plain English</text>
     </g>
-    <g opacity="0" font-size="22"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" calcMode="discrete" values="0;1;0;1;0" keyTimes="0;0.2599;0.342;0.7573;0.8394"/>
+    <g opacity="0" font-size="22"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" values="0;0;1;1;0;0;1;1;0;0" keyTimes="0;0.2599;0.2711;0.3308;0.342;0.7573;0.7685;0.8282;0.8394;1"/><animateTransform attributeName="transform" type="translate" dur="26.78s" repeatCount="indefinite" values="0 12;0 12;0 0;0 0;0 -12;0 12;0 12;0 0;0 0;0 -12;0 12;0 12" keyTimes="0;0.2599;0.2711;0.3308;0.342;0.3424;0.7573;0.7685;0.8282;0.8394;0.8398;1"/>
       <circle cx="54" cy="294" r="15" fill="#D97757"/>
       <text x="54" y="301" fill="#FFFFFF" font-size="18" font-weight="700" text-anchor="middle">3</text>
       <text x="84" y="302" fill="#4F4D48">Enter sends it to Claude, OpenAI, Gemini, Grok or Ollama</text>
     </g>
-    <g opacity="1" font-size="22"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" calcMode="discrete" values="0;1;0;1;0" keyTimes="0;0.342;0.4802;0.8394;0.9776"/>
+    <g opacity="1" font-size="22"><animate attributeName="opacity" dur="26.78s" repeatCount="indefinite" values="0;0;1;1;0;0;1;1;0;0" keyTimes="0;0.342;0.3532;0.469;0.4802;0.8394;0.8506;0.9664;0.9776;1"/><animateTransform attributeName="transform" type="translate" dur="26.78s" repeatCount="indefinite" values="0 12;0 12;0 0;0 0;0 -12;0 12;0 12;0 0;0 0;0 -12;0 12;0 12" keyTimes="0;0.342;0.3532;0.469;0.4802;0.4806;0.8394;0.8506;0.9664;0.9776;0.978;1"/>
       <circle cx="54" cy="294" r="15" fill="#D97757"/>
       <text x="54" y="301" fill="#FFFFFF" font-size="18" font-weight="700" text-anchor="middle">4</text>
       <text x="84" y="302" fill="#4F4D48">the command lands in your buffer: Enter runs it, or edit it first</text>
