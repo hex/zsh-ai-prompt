@@ -1,5 +1,5 @@
 # ABOUTME: Shared helper for OpenAI-compatible chat completions APIs.
-# ABOUTME: Used by openai and gemini backends to avoid duplicating curl+jq logic.
+# ABOUTME: Used by the openai, gemini and grok backends to avoid duplicating curl+jq logic.
 
 source "${0:A:h}/_http.zsh"
 
