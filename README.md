@@ -53,7 +53,9 @@ source ~/.zsh/zsh-ai-prompt/zsh-ai-prompt.plugin.zsh
 2. Type your query in plain English (e.g., "find all .log files older than 7 days")
 3. Press **Enter** to submit — a spinner animates while the AI responds
 4. The AI's response replaces your buffer — press Enter to execute, or edit first
-5. Press **Escape** or **Ctrl-C** to cancel at any time
+5. Press **Escape** or **Ctrl-C** to cancel at any time; this also stops a pending request. Enter while the spinner runs cancels too
+
+If the request fails (bad key, unknown model, rate limit, timeout, no network), your original buffer comes back and the error appears below the prompt. The plugin strips a markdown code fence around the response before putting it in the buffer.
 
 ## Configuration
 
@@ -79,19 +81,24 @@ ZSH_AI_PROMPT_TEXT_STYLE="fg=242"
 # When no API key is set, backends try their CLI tool (claude, gemini) before failing.
 # Set to 0 to disable CLI fallback and require an API key.
 ZSH_AI_PROMPT_USE_CLI=1
+
+# Seconds before an API request gives up (default: 60). Applies to the
+# HTTP backends, not to the claude or gemini CLI.
+ZSH_AI_PROMPT_TIMEOUT=60
 ```
 
 ## Backends
 
 ### Claude (default)
 
-Uses the Anthropic Messages API if `ANTHROPIC_API_KEY` is set (faster), otherwise falls back to the `claude` CLI (`claude --print`).
+Uses the Anthropic Messages API if `ANTHROPIC_API_KEY` is set (about 1 second per query), otherwise falls back to the `claude` CLI (`claude --print`, about 4 seconds). The CLI runs as a plain model call: tools, skills, your user and project settings (hooks, plugins, MCP servers) and session saving are all turned off.
 
 ```bash
 ZSH_AI_PROMPT_BACKEND="claude"
 # With API key: auto-detects $ANTHROPIC_API_KEY, or set explicitly:
 # ZSH_AI_PROMPT_API_KEY="sk-ant-..."
-# ZSH_AI_PROMPT_MODEL="claude-haiku-4-5"  # default (alias, always latest)
+# ZSH_AI_PROMPT_MODEL="claude-haiku-4-5"  # default
+# ZSH_AI_PROMPT_API_URL="https://..."     # default: https://api.anthropic.com/v1/messages
 
 # Without API key: uses CLI with zero config and existing CLI auth
 # ZSH_AI_PROMPT_MODEL="sonnet"  # override CLI model (default: haiku)
@@ -111,13 +118,14 @@ ZSH_AI_PROMPT_BACKEND="openai"
 
 ### Gemini
 
-Uses the Gemini API if `GEMINI_API_KEY` is set (faster), otherwise falls back to the `gemini` CLI.
+Uses the Gemini API if `GEMINI_API_KEY` is set (about 1 second per query), otherwise falls back to the `gemini` CLI.
 
 ```bash
 ZSH_AI_PROMPT_BACKEND="gemini"
 # With API key: auto-detects $GEMINI_API_KEY, or set explicitly:
 # ZSH_AI_PROMPT_API_KEY="..."
 # ZSH_AI_PROMPT_MODEL="gemini-3.1-flash-lite-preview"  # default, or uses $GEMINI_MODEL
+# ZSH_AI_PROMPT_API_URL="https://..."  # default: Gemini's OpenAI-compatible endpoint
 
 # Without API key: uses CLI with zero config and existing CLI auth
 # ZSH_AI_PROMPT_MODEL="gemini-3.1-flash-lite-preview"  # override model
@@ -135,5 +143,5 @@ ZSH_AI_PROMPT_BACKEND="ollama"
 
 ## Dependencies
 
-- **zsh** 5.0+ (for region_highlight and zle -F widget mode)
-- **jq** and **curl** (for API backends — not needed when using the claude or gemini CLI)
+- **zsh** 5.3+ (for region_highlight, zle -F widget mode and add-zle-hook-widget)
+- **jq** and **curl** 7.75+ (for API backends — not needed when using the claude or gemini CLI)

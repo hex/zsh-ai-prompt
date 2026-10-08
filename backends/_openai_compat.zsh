@@ -1,6 +1,8 @@
 # ABOUTME: Shared helper for OpenAI-compatible chat completions APIs.
 # ABOUTME: Used by openai and gemini backends to avoid duplicating curl+jq logic.
 
+source "${0:A:h}/_http.zsh"
+
 _ai_prompt_query_openai_compat() {
     local url="$1" api_key="$2" model="$3" query="$4" system="$5"
 
@@ -21,9 +23,7 @@ _ai_prompt_query_openai_compat() {
         --argjson msgs "$messages" \
         '{model:$model, messages:$msgs}')
 
-    curl -sS "$url" \
-        -H "Authorization: Bearer $api_key" \
-        -H "Content-Type: application/json" \
-        -d "$body" \
-    | jq -r '.choices[0].message.content // empty'
+    local response
+    response=$(print -r -- "$body" | _ai_prompt_post_json "$url" "Authorization: Bearer $api_key") || return 1
+    print -r -- "$response" | jq -r '.choices[0].message.content // empty'
 }
