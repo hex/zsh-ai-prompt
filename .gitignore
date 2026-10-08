@@ -18,3 +18,11 @@ Thumbs.db
 *.swp
 *.swo
 *~
+.cs/local/
+.cs/archives/
+.cs/vault-mnt/
+.cs/.narrative-reminder-cooldown
+.claude/settings.local.json
+CLAUDE.local.md
+.obsidian/
+.cs-tmp.*
