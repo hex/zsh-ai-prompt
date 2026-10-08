@@ -21,7 +21,7 @@ EXAMPLES = [
     ("kill whatever is listening on port 3000", "lsof -ti :3000 | xargs kill -9"),
 ]
 
-CHAR = 0.065      # seconds per typed character
+CHAR = 0.08       # seconds per typed character
 
 
 @dataclass(frozen=True)
@@ -38,11 +38,12 @@ class Cycle:
 
 
 def make_cycle(start, query, answer):
+    # Each step holds long enough to read its caption (2 s or more).
     alt = start + 1.0
-    typing = alt + 0.7
-    enter = typing + CHAR * len(query) + 0.5
-    reply = enter + 1.7
-    return Cycle(query, answer, start, alt, typing, enter, reply, reply + 3.2)
+    typing = alt + 2.0
+    enter = typing + CHAR * len(query) + 1.0
+    reply = enter + 2.2
+    return Cycle(query, answer, start, alt, typing, enter, reply, reply + 4.0)
 
 
 CYCLES = []
@@ -128,8 +129,9 @@ caption_spans = [
     [(c.enter, c.reply) for c in CYCLES],
     [(c.reply, c.end - 0.3) for c in CYCLES],
 ]
-chips = [("⌥ A", 112, [(c.alt, c.alt + 1.1) for c in CYCLES]),
-         ("⏎ Enter", 150, [(c.enter, c.enter + 0.9) for c in CYCLES])]
+# Each key badge stays up for the whole step its key starts.
+chips = [("⌥ A", 112, [(c.alt, c.typing) for c in CYCLES]),
+         ("⏎ Enter", 150, [(c.enter, c.reply) for c in CYCLES])]
 last = len(CYCLES) - 1
 
 queries = "".join(f"""
